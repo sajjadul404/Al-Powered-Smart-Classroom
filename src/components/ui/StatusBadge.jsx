@@ -10,36 +10,7 @@ import {
   XCircle,
 } from 'lucide-react';
 
-export type BadgeVariant =
-  | 'SAFE'
-  | 'ONLINE'
-  | 'SUCCESS'
-  | 'PRESENT'
-  | 'ACTIVE'
-  | 'GRANTED'
-  | 'VERIFIED'
-  | 'OK'
-  | 'LIVE'
-  | 'OCCUPIED'
-  | 'WARNING'
-  | 'LATE'
-  | 'SYNCING'
-  | 'PENDING'
-  | 'EMPTY'
-  | 'DANGER'
-  | 'FIRE'
-  | 'PANIC'
-  | 'ERROR'
-  | 'ABSENT'
-  | 'OFFLINE'
-  | 'BLOCKED'
-  | 'DENIED'
-  | 'INACTIVE'
-  | 'FAILED'
-  | 'LOCKED'
-  | 'UNLOCKED';
-
-const VARIANT_STYLES: Record<string, string> = {
+const VARIANT_STYLES = {
   green: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800',
   amber: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800',
   red: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/60 dark:text-red-300 dark:border-red-800',
@@ -47,7 +18,7 @@ const VARIANT_STYLES: Record<string, string> = {
   slate: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700',
 };
 
-function getStyleKey(status: string): keyof typeof VARIANT_STYLES {
+function getStyleKey(status) {
   const s = status.toUpperCase();
   if (['SAFE', 'ONLINE', 'SUCCESS', 'PRESENT', 'ACTIVE', 'GRANTED', 'VERIFIED', 'OK', 'LIVE', 'SYNCED', 'RESOLVED', 'RESTORED'].includes(s)) {
     return 'green';
@@ -64,7 +35,7 @@ function getStyleKey(status: string): keyof typeof VARIANT_STYLES {
   return 'slate';
 }
 
-function getIcon(status: string) {
+function getIcon(status) {
   const s = status.toUpperCase();
   if (s === 'FIRE') return <Flame className="w-3.5 h-3.5 shrink-0" />;
   if (s === 'PANIC' || s === 'CARD_LOCKOUT' || s === 'INTRUDER_DETECTED') return <ShieldAlert className="w-3.5 h-3.5 shrink-0" />;
@@ -79,7 +50,7 @@ function getIcon(status: string) {
   return null;
 }
 
-export function StatusBadge({ status, label }: { status: string; label?: string }) {
+export function StatusBadge({ status, label }) {
   const styleKey = getStyleKey(status);
   const icon = getIcon(status);
   return (

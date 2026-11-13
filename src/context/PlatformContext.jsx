@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import {
   INITIAL_ACCESS_LOGS,
   INITIAL_ATTENDANCE,
@@ -22,34 +22,8 @@ import {
   INITIAL_TELEMETRY_SERIES,
   INITIAL_USERS,
 } from '../data/seedData';
-import {
-  AccessLogRecord,
-  AttendanceRecord,
-  AuditLogEntry,
-  CSILocalizationEvent,
-  CameraEventRecord,
-  ConfigHistoryEntry,
-  ConfigSettings,
-  DeviceRecord,
-  EmergencyEventRecord,
-  HandRaiseEventRecord,
-  HistoryLogRecord,
-  LanguageCode,
-  NotificationCategory,
-  NotificationItem,
-  OTAUpdateEntry,
-  PageId,
-  PlatformUser,
-  SeatZone,
-  SecurityEventRecord,
-  SensorTelemetry,
-  StudentRecord,
-  SyncQueueItem,
-  ToastMessage,
-  UserRole,
-} from '../types';
 
-export const ROLE_ALLOWED_PAGES: Record<UserRole, PageId[]> = {
+export const ROLE_ALLOWED_PAGES = {
   Admin: [
     'dashboard',
     'users',
@@ -87,136 +61,53 @@ export const ROLE_ALLOWED_PAGES: Record<UserRole, PageId[]> = {
   Guardian: ['dashboard', 'notifications', 'settings'],
 };
 
-interface PlatformContextValue {
-  currentUser: PlatformUser | null;
-  activePage: PageId;
-  setActivePage: (page: PageId) => void;
-  language: LanguageCode;
-  setLanguage: (lang: LanguageCode) => void;
-  theme: 'light' | 'dark';
-  setTheme: (theme: 'light' | 'dark') => void;
-  selectedClassroom: string;
-  setSelectedClassroom: (room: string) => void;
-  connectionMode: 'LIVE' | 'OFFLINE' | 'SYNCING';
-  setConnectionMode: (mode: 'LIVE' | 'OFFLINE' | 'SYNCING') => void;
-  offlineDurationSec: number;
-  teamId: string;
-  users: PlatformUser[];
-  setUsers: React.Dispatch<React.SetStateAction<PlatformUser[]>>;
-  students: StudentRecord[];
-  setStudents: React.Dispatch<React.SetStateAction<StudentRecord[]>>;
-  attendance: AttendanceRecord[];
-  setAttendance: React.Dispatch<React.SetStateAction<AttendanceRecord[]>>;
-  accessLogs: AccessLogRecord[];
-  setAccessLogs: React.Dispatch<React.SetStateAction<AccessLogRecord[]>>;
-  securityEvents: SecurityEventRecord[];
-  setSecurityEvents: React.Dispatch<React.SetStateAction<SecurityEventRecord[]>>;
-  telemetry: SensorTelemetry;
-  setTelemetry: React.Dispatch<React.SetStateAction<SensorTelemetry>>;
-  telemetrySeries: Array<{ time: string; temperature: number; humidity: number; occupancy: number }>;
-  emergencyEvents: EmergencyEventRecord[];
-  devices: DeviceRecord[];
-  setDevices: React.Dispatch<React.SetStateAction<DeviceRecord[]>>;
-  config: ConfigSettings;
-  updateConfig: (next: ConfigSettings, actor: string) => { ok: boolean; error?: string };
-  configHistory: ConfigHistoryEntry[];
-  otaHistory: OTAUpdateEntry[];
-  setOtaHistory: React.Dispatch<React.SetStateAction<OTAUpdateEntry[]>>;
-  seatZones: SeatZone[];
-  setSeatZones: React.Dispatch<React.SetStateAction<SeatZone[]>>;
-  cameraEvents: CameraEventRecord[];
-  setCameraEvents: React.Dispatch<React.SetStateAction<CameraEventRecord[]>>;
-  handRaiseEvents: HandRaiseEventRecord[];
-  setHandRaiseEvents: React.Dispatch<React.SetStateAction<HandRaiseEventRecord[]>>;
-  csiGrid: number[][];
-  setCsiGrid: React.Dispatch<React.SetStateAction<number[][]>>;
-  csiHistory: CSILocalizationEvent[];
-  setCsiHistory: React.Dispatch<React.SetStateAction<CSILocalizationEvent[]>>;
-  cameraCoveredMode: boolean;
-  setCameraCoveredMode: React.Dispatch<React.SetStateAction<boolean>>;
-  notifications: NotificationItem[];
-  setNotifications: React.Dispatch<React.SetStateAction<NotificationItem[]>>;
-  syncQueue: SyncQueueItem[];
-  setSyncQueue: React.Dispatch<React.SetStateAction<SyncQueueItem[]>>;
-  historyLogs: HistoryLogRecord[];
-  auditLogs: AuditLogEntry[];
-  toasts: ToastMessage[];
-  pushToast: (toast: Omit<ToastMessage, 'id'>) => void;
-  dismissToast: (id: string) => void;
-  login: (identifier: string, password: string) => { ok: boolean; error?: string };
-  quickLoginRole: (role: UserRole) => void;
-  logout: () => void;
-  triggerFireEmergency: () => void;
-  resetFireEmergency: () => void;
-  triggerPanicAlert: () => void;
-  resetPanicAlert: () => void;
-  unlockDoorTemporary: (reason: string) => void;
-  deleteStudentWithAudit: (studentId: string) => void;
-  unblockStudentCard: (rfidUid: string) => void;
-  simulateFiveFaceMismatches: (rfidUid: string) => void;
-  acknowledgeNotification: (id: string) => void;
-  addNotification: (category: NotificationCategory, priority: NotificationItem['priority'], title: string, message: string) => void;
-  addHistoryLog: (category: HistoryLogRecord['category'], actor: string, status: string, summary: string) => void;
-  addAuditLog: (action: string, target: string, details: string) => void;
-  toggleOfflineSimulation: () => void;
-  runSyncProcess: () => void;
-  selectedStudentIdForDetails: string | null;
-  setSelectedStudentIdForDetails: (id: string | null) => void;
-  selectedDeviceIdForDetails: string | null;
-  setSelectedDeviceIdForDetails: (id: string | null) => void;
-  sitemapOpen: boolean;
-  setSitemapOpen: (open: boolean) => void;
-  institutionName: string;
-  setInstitutionName: (name: string) => void;
-}
-
-const PlatformContext = createContext<PlatformContextValue | null>(null);
+const PlatformContext = createContext(null);
 
 function nowStr() {
   const d = new Date();
-  const pad = (n: number) => String(n).padStart(2, '0');
+  const pad = (n) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-export function PlatformProvider({ children }: { children: React.ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<PlatformUser | null>(null);
-  const [activePage, setActivePageState] = useState<PageId>('dashboard');
-  const [language, setLanguage] = useState<LanguageCode>('en');
-  const [theme, setThemeState] = useState<'light' | 'dark'>('light');
+export function PlatformProvider({ children }) {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [activePage, setActivePageState] = useState('dashboard');
+  const [language, setLanguage] = useState('en');
+  const [theme, setThemeState] = useState('light');
   const [selectedClassroom, setSelectedClassroom] = useState('CSE-401');
-  const [connectionMode, setConnectionMode] = useState<'LIVE' | 'OFFLINE' | 'SYNCING'>('LIVE');
+  const [connectionMode, setConnectionMode] = useState('LIVE');
   const [offlineDurationSec, setOfflineDurationSec] = useState(0);
   const [teamId] = useState('FR04');
   const [institutionName, setInstitutionName] = useState('Bangladesh University of Business & Technology (BUBT)');
 
-  const [users, setUsers] = useState<PlatformUser[]>(INITIAL_USERS);
-  const [students, setStudents] = useState<StudentRecord[]>(INITIAL_STUDENTS);
-  const [attendance, setAttendance] = useState<AttendanceRecord[]>(INITIAL_ATTENDANCE);
-  const [accessLogs, setAccessLogs] = useState<AccessLogRecord[]>(INITIAL_ACCESS_LOGS);
-  const [securityEvents, setSecurityEvents] = useState<SecurityEventRecord[]>(INITIAL_SECURITY_EVENTS);
-  const [telemetry, setTelemetry] = useState<SensorTelemetry>(INITIAL_TELEMETRY);
+  const [users, setUsers] = useState(INITIAL_USERS);
+  const [students, setStudents] = useState(INITIAL_STUDENTS);
+  const [attendance, setAttendance] = useState(INITIAL_ATTENDANCE);
+  const [accessLogs, setAccessLogs] = useState(INITIAL_ACCESS_LOGS);
+  const [securityEvents, setSecurityEvents] = useState(INITIAL_SECURITY_EVENTS);
+  const [telemetry, setTelemetry] = useState(INITIAL_TELEMETRY);
   const [telemetrySeries, setTelemetrySeries] = useState(INITIAL_TELEMETRY_SERIES);
-  const [emergencyEvents, setEmergencyEvents] = useState<EmergencyEventRecord[]>(INITIAL_EMERGENCY_EVENTS);
-  const [devices, setDevices] = useState<DeviceRecord[]>(INITIAL_DEVICES);
-  const [config, setConfig] = useState<ConfigSettings>(INITIAL_CONFIG);
-  const [configHistory, setConfigHistory] = useState<ConfigHistoryEntry[]>(INITIAL_CONFIG_HISTORY);
-  const [otaHistory, setOtaHistory] = useState<OTAUpdateEntry[]>(INITIAL_OTA_HISTORY);
-  const [seatZones, setSeatZones] = useState<SeatZone[]>(INITIAL_SEAT_ZONES);
-  const [cameraEvents, setCameraEvents] = useState<CameraEventRecord[]>(INITIAL_CAMERA_EVENTS);
-  const [handRaiseEvents, setHandRaiseEvents] = useState<HandRaiseEventRecord[]>(INITIAL_HAND_RAISE_EVENTS);
-  const [csiGrid, setCsiGrid] = useState<number[][]>(INITIAL_CSI_GRID);
-  const [csiHistory, setCsiHistory] = useState<CSILocalizationEvent[]>(INITIAL_CSI_HISTORY);
+  const [emergencyEvents, setEmergencyEvents] = useState(INITIAL_EMERGENCY_EVENTS);
+  const [devices, setDevices] = useState(INITIAL_DEVICES);
+  const [config, setConfig] = useState(INITIAL_CONFIG);
+  const [configHistory, setConfigHistory] = useState(INITIAL_CONFIG_HISTORY);
+  const [otaHistory, setOtaHistory] = useState(INITIAL_OTA_HISTORY);
+  const [seatZones, setSeatZones] = useState(INITIAL_SEAT_ZONES);
+  const [cameraEvents, setCameraEvents] = useState(INITIAL_CAMERA_EVENTS);
+  const [handRaiseEvents, setHandRaiseEvents] = useState(INITIAL_HAND_RAISE_EVENTS);
+  const [csiGrid, setCsiGrid] = useState(INITIAL_CSI_GRID);
+  const [csiHistory, setCsiHistory] = useState(INITIAL_CSI_HISTORY);
   const [cameraCoveredMode, setCameraCoveredMode] = useState(false);
-  const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
-  const [syncQueue, setSyncQueue] = useState<SyncQueueItem[]>(INITIAL_SYNC_QUEUE);
-  const [historyLogs, setHistoryLogs] = useState<HistoryLogRecord[]>(INITIAL_HISTORY_LOGS);
-  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(INITIAL_AUDIT_LOGS);
-  const [toasts, setToasts] = useState<ToastMessage[]>([]);
-  const [selectedStudentIdForDetails, setSelectedStudentIdForDetails] = useState<string | null>(null);
-  const [selectedDeviceIdForDetails, setSelectedDeviceIdForDetails] = useState<string | null>(null);
+  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+  const [syncQueue, setSyncQueue] = useState(INITIAL_SYNC_QUEUE);
+  const [historyLogs, setHistoryLogs] = useState(INITIAL_HISTORY_LOGS);
+  const [auditLogs, setAuditLogs] = useState(INITIAL_AUDIT_LOGS);
+  const [toasts, setToasts] = useState([]);
+  const [selectedStudentIdForDetails, setSelectedStudentIdForDetails] = useState(null);
+  const [selectedDeviceIdForDetails, setSelectedDeviceIdForDetails] = useState(null);
   const [sitemapOpen, setSitemapOpen] = useState(false);
 
-  const setTheme = (nextTheme: 'light' | 'dark') => {
+  const setTheme = (nextTheme) => {
     setThemeState(nextTheme);
     if (nextTheme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -225,7 +116,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const pushToast = (toast: Omit<ToastMessage, 'id'>) => {
+  const pushToast = (toast) => {
     const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
     setToasts((prev) => [...prev, { ...toast, id }]);
     setTimeout(() => {
@@ -233,17 +124,12 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     }, 4500);
   };
 
-  const dismissToast = (id: string) => {
+  const dismissToast = (id) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  const addNotification = (
-    category: NotificationCategory,
-    priority: NotificationItem['priority'],
-    title: string,
-    message: string
-  ) => {
-    const item: NotificationItem = {
+  const addNotification = (category, priority, title, message) => {
+    const item = {
       id: `not-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
       timestamp: nowStr(),
       category,
@@ -256,12 +142,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     setNotifications((prev) => [item, ...prev]);
   };
 
-  const addHistoryLog = (
-    category: HistoryLogRecord['category'],
-    actor: string,
-    status: string,
-    summary: string
-  ) => {
+  const addHistoryLog = (category, actor, status, summary) => {
     setHistoryLogs((prev) => [
       {
         id: `his-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
@@ -277,7 +158,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     ]);
   };
 
-  const addAuditLog = (action: string, target: string, details: string) => {
+  const addAuditLog = (action, target, details) => {
     setAuditLogs((prev) => [
       {
         id: `aud-${Date.now()}`,
@@ -292,7 +173,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     ]);
   };
 
-  const setActivePage = (page: PageId) => {
+  const setActivePage = (page) => {
     if (!currentUser) return;
     const allowed = ROLE_ALLOWED_PAGES[currentUser.role];
     if (!allowed.includes(page)) {
@@ -306,7 +187,6 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     setActivePageState(page);
   };
 
-  // Door auto-relock timer (3 seconds) — Fire overrides every other door rule!
   useEffect(() => {
     if (telemetry.doorStatus === 'UNLOCKED' && !telemetry.flameDetected && telemetry.doorUnlockRemainingSec > 0) {
       const timer = setTimeout(() => {
@@ -328,7 +208,6 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     }
   }, [telemetry.doorStatus, telemetry.flameDetected, telemetry.doorUnlockRemainingSec]);
 
-  // Offline duration counter when offline
   useEffect(() => {
     if (connectionMode === 'OFFLINE') {
       const interval = setInterval(() => {
@@ -338,7 +217,6 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     }
   }, [connectionMode]);
 
-  // Subtle live demo telemetry heartbeat every 10s when LIVE
   useEffect(() => {
     if (connectionMode !== 'LIVE') return;
     const interval = setInterval(() => {
@@ -359,7 +237,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     return () => clearInterval(interval);
   }, [connectionMode]);
 
-  const login = (identifier: string, password: string) => {
+  const login = (identifier, password) => {
     const clean = identifier.trim().toLowerCase();
     const matched = users.find(
       (u) => u.email.toLowerCase() === clean || u.username.toLowerCase() === clean
@@ -374,7 +252,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
       return { ok: false, error: 'Incorrect password. Please verify your credentials.' };
     }
     const ts = nowStr();
-    const updatedUser: PlatformUser = {
+    const updatedUser = {
       ...matched,
       lastLogin: ts,
       loginHistory: [
@@ -389,7 +267,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     return { ok: true };
   };
 
-  const quickLoginRole = (role: UserRole) => {
+  const quickLoginRole = (role) => {
     const found = users.find((u) => u.role === role && u.status === 'ACTIVE');
     if (!found) return;
     setCurrentUser(found);
@@ -498,7 +376,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     pushToast({ type: 'success', title: 'Panic Alert Cleared', description: `Acknowledged by ${actor}` });
   };
 
-  const unlockDoorTemporary = (reason: string) => {
+  const unlockDoorTemporary = (reason) => {
     setTelemetry((prev) => ({
       ...prev,
       doorStatus: 'UNLOCKED',
@@ -510,7 +388,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     pushToast({ type: 'info', title: 'Door Unlocked', description: `${reason} (${config.doorUnlockDurationSec}s)` });
   };
 
-  const deleteStudentWithAudit = (studentId: string) => {
+  const deleteStudentWithAudit = (studentId) => {
     const target = students.find((s) => s.id === studentId || s.studentId === studentId);
     if (!target) return;
     setStudents((prev) => prev.filter((s) => s.id !== target.id));
@@ -528,7 +406,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const unblockStudentCard = (rfidUid: string) => {
+  const unblockStudentCard = (rfidUid) => {
     setStudents((prev) =>
       prev.map((s) => (s.rfidUid === rfidUid ? { ...s, cardStatus: 'ACTIVE' } : s))
     );
@@ -540,7 +418,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     pushToast({ type: 'success', title: 'Card Unblocked', description: `RFID ${rfidUid} is active again.` });
   };
 
-  const simulateFiveFaceMismatches = (rfidUid: string) => {
+  const simulateFiveFaceMismatches = (rfidUid) => {
     const student = students.find((s) => s.rfidUid === rfidUid);
     const name = student?.name ?? 'Unknown Holder';
     setStudents((prev) => prev.map((s) => (s.rfidUid === rfidUid ? { ...s, cardStatus: 'BLOCKED' } : s)));
@@ -579,14 +457,14 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     pushToast({ type: 'error', title: 'Card Locked (5 Mismatches)', description: `${rfidUid} blocked for 2-minute threshold violation.` });
   };
 
-  const acknowledgeNotification = (id: string) => {
+  const acknowledgeNotification = (id) => {
     const actor = currentUser?.name ?? 'Staff';
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read: true, acknowledged: true, acknowledgedBy: actor } : n))
     );
   };
 
-  const updateConfig = (next: ConfigSettings, actor: string) => {
+  const updateConfig = (next, actor) => {
     if (next.tempWarningThreshold >= next.tempDangerThreshold) {
       return { ok: false, error: 'Warning threshold must be strictly lower than Danger threshold.' };
     }
@@ -597,7 +475,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
       return { ok: false, error: 'Door unlock duration must be between 1 and 30 seconds.' };
     }
     const ts = nowStr();
-    const diffs: ConfigHistoryEntry[] = [];
+    const diffs = [];
     if (next.tempWarningThreshold !== config.tempWarningThreshold) {
       diffs.push({
         id: `cfg-${Date.now()}-1`,
@@ -641,7 +519,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     setConfig(next);
     setConfigHistory((prev) => [...diffs, ...prev]);
     addHistoryLog('Configuration Changes', actor, 'SAVED', `Updated configuration for ${next.roomId}`);
-    addAuditLog('UPDATE_REMOTE_CONFIG', next.roomId, `Saved remote configuration parameters.`);
+    addAuditLog('UPDATE_REMOTE_CONFIG', next.roomId, 'Saved remote configuration parameters.');
     return { ok: true };
   };
 
@@ -689,7 +567,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     }, 1800);
   };
 
-  const value = useMemo<PlatformContextValue>(
+  const value = useMemo(
     () => ({
       currentUser,
       activePage,

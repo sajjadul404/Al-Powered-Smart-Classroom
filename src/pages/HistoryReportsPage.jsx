@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { Download, Printer, Search } from 'lucide-react';
-import { usePlatform } from '../context/PlatformContext';
-import { HistoryLogRecord } from '../types';
-import { StatusBadge } from '../components/ui/StatusBadge';
+import { usePlatform } from '../context/PlatformContext.jsx';
+import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
-const CATEGORIES: Array<'ALL' | HistoryLogRecord['category']> = [
+const CATEGORIES = [
   'ALL',
   'Attendance History',
   'RFID Scan History',
@@ -29,7 +28,7 @@ const CATEGORIES: Array<'ALL' | HistoryLogRecord['category']> = [
 export function HistoryReportsPage() {
   const { historyLogs, pushToast } = usePlatform();
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState<'ALL' | HistoryLogRecord['category']>('ALL');
+  const [category, setCategory] = useState('ALL');
   const [roomFilter, setRoomFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [dateFrom, setDateFrom] = useState('2026-11-01');
@@ -130,7 +129,7 @@ export function HistoryReportsPage() {
         <select
           aria-label="Filter Event Category"
           value={category}
-          onChange={(e) => setCategory(e.target.value as 'ALL' | HistoryLogRecord['category'])}
+          onChange={(e) => setCategory(e.target.value)}
           className="px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
         >
           {CATEGORIES.map((c) => (

@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AlertTriangle, Camera, EyeOff, Moon, Plus, Shield, Trash2 } from 'lucide-react';
-import { usePlatform } from '../context/PlatformContext';
+import { usePlatform } from '../context/PlatformContext.jsx';
 import { ASSETS } from '../data/seedData';
-import { SeatZone } from '../types';
-import { Modal } from '../components/ui/Modal';
-import { StatusBadge } from '../components/ui/StatusBadge';
+import { Modal } from '../components/ui/Modal.jsx';
+import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
 export function CameraMonitoringPage() {
   const {
@@ -19,18 +18,17 @@ export function CameraMonitoringPage() {
     pushToast,
   } = usePlatform();
 
-  const [cameraMode, setCameraMode] = useState<'ROOM' | 'DOOR'>('ROOM');
+  const [cameraMode, setCameraMode] = useState('ROOM');
   const [fps, setFps] = useState(2.4);
   const [frameTick, setFrameTick] = useState(1);
   const [showBoxes, setShowBoxes] = useState(true);
   const [nightWatch, setNightWatch] = useState(false);
-  const [tamperStatus, setTamperStatus] = useState<'OK' | 'CAMERA_COVERED' | 'CAMERA_MOVED'>('OK');
-  const [intruderAlert, setIntruderAlert] = useState<{ time: string; snapshot: string } | null>(null);
+  const [tamperStatus, setTamperStatus] = useState('OK');
+  const [intruderAlert, setIntruderAlert] = useState(null);
   const [zoneModalOpen, setZoneModalOpen] = useState(false);
-  const [editingZone, setEditingZone] = useState<SeatZone | null>(null);
+  const [editingZone, setEditingZone] = useState(null);
   const [zoneForm, setZoneForm] = useState({ label: 'Row 3 · Seat C1', row: 3, col: 1, occupied: true, studentName: 'Tanvir Hossain' });
 
-  // Live ≥ 1 FPS frame heartbeat ticker
   useEffect(() => {
     const timer = setInterval(() => {
       setFrameTick((t) => t + 1);
@@ -42,7 +40,7 @@ export function CameraMonitoringPage() {
   const occupiedZones = seatZones.filter((z) => z.occupied).length;
   const capacityAlert = telemetry.occupancy > telemetry.capacity;
 
-  const triggerTamper = (type: 'CAMERA_COVERED' | 'CAMERA_MOVED' | 'RESTORED') => {
+  const triggerTamper = (type) => {
     const ts = new Date().toISOString().slice(0, 19).replace('T', ' ');
     if (type === 'RESTORED') {
       setTamperStatus('OK');
@@ -76,7 +74,7 @@ export function CameraMonitoringPage() {
     pushToast({ type: 'error', title: 'Intruder Detected', description: 'Private snapshot captured and Teacher notified.' });
   };
 
-  const saveSeatZone = (e: React.FormEvent) => {
+  const saveSeatZone = (e) => {
     e.preventDefault();
     if (editingZone) {
       setSeatZones((prev) =>
@@ -88,7 +86,7 @@ export function CameraMonitoringPage() {
       );
       pushToast({ type: 'success', title: 'Seat Zone Updated' });
     } else {
-      const created: SeatZone = {
+      const created = {
         id: `sz-${Date.now()}`,
         label: zoneForm.label,
         row: zoneForm.row,
@@ -138,7 +136,6 @@ export function CameraMonitoringPage() {
         </div>
       </div>
 
-      {/* Privacy Notice */}
       <div className="p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 flex items-center gap-3 text-xs text-blue-900 dark:text-blue-200">
         <Shield className="w-4 h-4 text-blue-600 shrink-0" />
         <span>
@@ -154,7 +151,6 @@ export function CameraMonitoringPage() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Live Camera Feed Panel */}
         <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2.5">
@@ -247,7 +243,6 @@ export function CameraMonitoringPage() {
           </div>
         </div>
 
-        {/* People Counting & Night Watch Column */}
         <div className="space-y-5">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3">
             <h2 className="font-display text-sm font-semibold">People Counting & Occupancy</h2>
@@ -290,7 +285,6 @@ export function CameraMonitoringPage() {
         </div>
       </div>
 
-      {/* Seat Zone Monitoring CRUD + Camera Status History */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3">
           <div className="flex items-center justify-between">

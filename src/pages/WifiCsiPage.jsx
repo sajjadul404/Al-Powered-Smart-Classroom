@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { EyeOff, MapPin, Radio, Wifi } from 'lucide-react';
-import { usePlatform } from '../context/PlatformContext';
-import { StatusBadge } from '../components/ui/StatusBadge';
+import { usePlatform } from '../context/PlatformContext.jsx';
+import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
 const ZONE_LABELS = [
   ['R1C1 (Front Left)', 'R1C2 (Front Center)', 'R1C3 (Front Right)'],
@@ -23,7 +23,7 @@ export function WifiCsiPage() {
 
   const [packetRate, setPacketRate] = useState(50);
   const [packetCount, setPacketCount] = useState(14820);
-  const [presence, setPresence] = useState<'OCCUPIED' | 'EMPTY'>(telemetry.csiPresence);
+  const [presence, setPresence] = useState(telemetry.csiPresence);
   const [liveSim, setLiveSim] = useState(false);
 
   // Find peak estimated person location
@@ -54,7 +54,7 @@ export function WifiCsiPage() {
   }, [liveSim, csiGrid, setCsiGrid]);
 
   const togglePresence = () => {
-    const next: 'OCCUPIED' | 'EMPTY' = presence === 'OCCUPIED' ? 'EMPTY' : 'OCCUPIED';
+    const next = presence === 'OCCUPIED' ? 'EMPTY' : 'OCCUPIED';
     setPresence(next);
     setTelemetry((t) => ({ ...t, csiPresence: next }));
     if (next === 'EMPTY') {
@@ -86,7 +86,7 @@ export function WifiCsiPage() {
     ]);
   };
 
-  const selectZoneDemo = (r: number, c: number) => {
+  const selectZoneDemo = (r, c) => {
     const next = csiGrid.map((row, ri) =>
       row.map((_, ci) => (ri === r && ci === c ? 0.94 : Number((0.1 + Math.random() * 0.35).toFixed(2))))
     );

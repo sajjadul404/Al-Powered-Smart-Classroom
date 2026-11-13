@@ -1,38 +1,21 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AlertTriangle, CloudRain, CloudSun, RefreshCw, Sun, Zap } from 'lucide-react';
-import { usePlatform } from '../context/PlatformContext';
-import { SimpleBarChart, SimpleLineChart } from '../components/ui/Charts';
-import { StatusBadge } from '../components/ui/StatusBadge';
-
-interface WeatherResponse {
-  status: 'LIVE' | 'STALE';
-  apiConnected: boolean;
-  lastUpdated: string;
-  warning: string | null;
-  data: {
-    temperature: number;
-    humidity: number;
-    condition: string;
-    windSpeed: number;
-    icon: 'sun' | 'cloud-sun' | 'rain' | 'storm';
-    notice: string;
-    dangerAlert: string | null;
-    forecast24h: Array<{ hour: string; temp: number; humidity: number; condition: string }>;
-  };
-}
+import { usePlatform } from '../context/PlatformContext.jsx';
+import { SimpleBarChart, SimpleLineChart } from '../components/ui/Charts.jsx';
+import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
 export function WeatherAnalyticsPage() {
   const { telemetrySeries, attendance, emergencyEvents, config } = usePlatform();
-  const [period, setPeriod] = useState<'Daily' | 'Weekly' | 'Monthly'>('Daily');
+  const [period, setPeriod] = useState('Daily');
   const [simulateFailure, setSimulateFailure] = useState(false);
-  const [weather, setWeather] = useState<WeatherResponse | null>(null);
+  const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const loadWeather = useCallback(async (failMode: boolean, refresh = false) => {
+  const loadWeather = useCallback(async (failMode, refresh = false) => {
     setLoading(true);
     try {
       const resp = await fetch(`/api/weather?simulateFailure=${failMode}&refresh=${refresh}`);
-      const json: WeatherResponse = await resp.json();
+      const json = await resp.json();
       setWeather(json);
     } catch {
       // Keep last cached weather if fetch completely fails
@@ -167,7 +150,7 @@ export function WeatherAnalyticsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
         <h2 className="font-display text-lg font-bold">Classroom Telemetry & Operational Analytics</h2>
         <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
-          {(['Daily', 'Weekly', 'Monthly'] as const).map((p) => (
+          {['Daily', 'Weekly', 'Monthly'].map((p) => (
             <button
               key={p}
               type="button"

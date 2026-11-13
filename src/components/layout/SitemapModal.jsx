@@ -1,10 +1,9 @@
 import { Map, Shield } from 'lucide-react';
-import { ROLE_ALLOWED_PAGES, usePlatform } from '../../context/PlatformContext';
+import { ROLE_ALLOWED_PAGES, usePlatform } from '../../context/PlatformContext.jsx';
 import { PAGE_TITLES } from '../../i18n';
-import { PageId, UserRole } from '../../types';
-import { Modal } from '../ui/Modal';
+import { Modal } from '../ui/Modal.jsx';
 
-const SITEMAP_GROUPS: Array<{ title: string; pages: Array<{ id: PageId; level: string }> }> = [
+const SITEMAP_GROUPS = [
   {
     title: 'Core & Identity',
     pages: [
@@ -44,7 +43,7 @@ const SITEMAP_GROUPS: Array<{ title: string; pages: Array<{ id: PageId; level: s
   },
 ];
 
-const ROLES: UserRole[] = ['Admin', 'Teacher', 'Student', 'Guardian'];
+const ROLES = ['Admin', 'Teacher', 'Student', 'Guardian'];
 
 export function SitemapModal() {
   const { sitemapOpen, setSitemapOpen, currentUser, setActivePage, language } = usePlatform();

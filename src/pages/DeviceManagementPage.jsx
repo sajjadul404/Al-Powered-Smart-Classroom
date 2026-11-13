@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ArrowLeft, Cpu, Edit2, RefreshCw, RotateCcw, Sliders, Terminal, Wifi } from 'lucide-react';
-import { usePlatform } from '../context/PlatformContext';
+import { usePlatform } from '../context/PlatformContext.jsx';
 import { ASSETS } from '../data/seedData';
-import { DeviceRecord } from '../types';
-import { Modal } from '../components/ui/Modal';
-import { StatusBadge } from '../components/ui/StatusBadge';
+import { Modal } from '../components/ui/Modal.jsx';
+import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
-function formatUptime(sec: number) {
+function formatUptime(sec) {
   const d = Math.floor(sec / 86400);
   const h = Math.floor((sec % 86400) / 3600);
   const m = Math.floor((sec % 3600) / 60);
@@ -24,14 +23,14 @@ export function DeviceManagementPage() {
     addHistoryLog,
   } = usePlatform();
 
-  const [editingDevice, setEditingDevice] = useState<DeviceRecord | null>(null);
+  const [editingDevice, setEditingDevice] = useState(null);
   const [editName, setEditName] = useState('');
   const [editRoom, setEditRoom] = useState('');
-  const [logsModalDevice, setLogsModalDevice] = useState<DeviceRecord | null>(null);
+  const [logsModalDevice, setLogsModalDevice] = useState(null);
 
   const detailDevice = devices.find((d) => d.id === selectedDeviceIdForDetails) ?? null;
 
-  const handleReconnect = (dev: DeviceRecord) => {
+  const handleReconnect = (dev) => {
     setDevices((prev) =>
       prev.map((d) =>
         d.id === dev.id
@@ -52,7 +51,7 @@ export function DeviceManagementPage() {
     pushToast({ type: 'success', title: 'Device Reconnected', description: `${dev.id} MQTT stream restored.` });
   };
 
-  const handleRestart = (dev: DeviceRecord) => {
+  const handleRestart = (dev) => {
     setDevices((prev) =>
       prev.map((d) =>
         d.id === dev.id
@@ -73,7 +72,7 @@ export function DeviceManagementPage() {
     pushToast({ type: 'info', title: 'Device Restarted', description: `${dev.id} rebooted and re-registered online.` });
   };
 
-  const handleEditSubmit = (e: React.FormEvent) => {
+  const handleEditSubmit = (e) => {
     e.preventDefault();
     if (!editingDevice) return;
     setDevices((prev) =>
@@ -83,7 +82,6 @@ export function DeviceManagementPage() {
     setEditingDevice(null);
   };
 
-  // DEVICE DETAILS VIEW
   if (detailDevice) {
     return (
       <div className="space-y-6">

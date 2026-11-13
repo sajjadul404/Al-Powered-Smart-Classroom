@@ -1,14 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Bot, Database, Loader2, Send, User } from 'lucide-react';
-import { usePlatform } from '../context/PlatformContext';
-
-interface ChatMessage {
-  id: string;
-  sender: 'user' | 'assistant';
-  text: string;
-  timestamp: string;
-  source?: string;
-}
+import { usePlatform } from '../context/PlatformContext.jsx';
 
 const SUGGESTED_QUESTIONS = [
   "What is today's attendance?",
@@ -21,7 +13,7 @@ const SUGGESTED_QUESTIONS = [
 
 export function AIAssistantPage() {
   const { students, attendance, telemetry, telemetrySeries, emergencyEvents, devices, currentUser } = usePlatform();
-  const [messages, setMessages] = useState<ChatMessage[]>([
+  const [messages, setMessages] = useState([
     {
       id: 'init-1',
       sender: 'assistant',
@@ -32,11 +24,11 @@ export function AIAssistantPage() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const askQuestion = async (questionText: string) => {
+  const askQuestion = async (questionText) => {
     const clean = questionText.trim();
     if (!clean || loading) return;
 
-    const userMsg: ChatMessage = {
+    const userMsg = {
       id: `u-${Date.now()}`,
       sender: 'user',
       text: clean,
@@ -95,7 +87,7 @@ export function AIAssistantPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     askQuestion(input);
   };

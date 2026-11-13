@@ -1,5 +1,5 @@
 import { AlertTriangle, CheckCircle2, Info, X, XCircle } from 'lucide-react';
-import { usePlatform } from '../../context/PlatformContext';
+import { usePlatform } from '../../context/PlatformContext.jsx';
 
 export function ToastContainer() {
   const { toasts, dismissToast } = usePlatform();

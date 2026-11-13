@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { AlertTriangle, Camera, CreditCard, Edit3, Lock, Search, ShieldAlert, Unlock } from 'lucide-react';
-import { usePlatform } from '../context/PlatformContext';
+import { usePlatform } from '../context/PlatformContext.jsx';
 import { ASSETS } from '../data/seedData';
-import { AttendanceRecord, AttendanceStatus } from '../types';
-import { Modal } from '../components/ui/Modal';
-import { StatusBadge } from '../components/ui/StatusBadge';
+import { Modal } from '../components/ui/Modal.jsx';
+import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
 export function AttendanceAccessPage() {
   const {
@@ -23,14 +22,14 @@ export function AttendanceAccessPage() {
     addAuditLog,
   } = usePlatform();
 
-  const [activeTab, setActiveTab] = useState<'Attendance' | 'Access Logs' | 'Security Events'>('Attendance');
+  const [activeTab, setActiveTab] = useState('Attendance');
   const [search, setSearch] = useState('');
   const [classFilter, setClassFilter] = useState('ALL');
   const [dateFilter, setDateFilter] = useState('2026-11-12');
-  const [correctingRow, setCorrectingRow] = useState<AttendanceRecord | null>(null);
-  const [correctionStatus, setCorrectionStatus] = useState<AttendanceStatus>('PRESENT');
+  const [correctingRow, setCorrectingRow] = useState(null);
+  const [correctionStatus, setCorrectionStatus] = useState('PRESENT');
   const [correctionReason, setCorrectionReason] = useState('');
-  const [snapshotPreview, setSnapshotPreview] = useState<{ label: string; details: string } | null>(null);
+  const [snapshotPreview, setSnapshotPreview] = useState(null);
 
   const isAdmin = currentUser?.role === 'Admin';
   const presentCount = attendance.filter((a) => a.status === 'PRESENT').length;
@@ -117,7 +116,6 @@ export function AttendanceAccessPage() {
         </div>
       </div>
 
-      {/* Card Lockout Warning Banner */}
       {lockedCards.length > 0 && (
         <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-start gap-3">
@@ -150,7 +148,6 @@ export function AttendanceAccessPage() {
         </div>
       )}
 
-      {/* Summary Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5">
         <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
           <p className="text-xs text-slate-500">Present</p>
@@ -174,10 +171,9 @@ export function AttendanceAccessPage() {
         </div>
       </div>
 
-      {/* Tabs + Search */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl w-fit">
-          {(['Attendance', 'Access Logs', 'Security Events'] as const).map((tab) => (
+          {['Attendance', 'Access Logs', 'Security Events'].map((tab) => (
             <button
               key={tab}
               type="button"
@@ -222,7 +218,6 @@ export function AttendanceAccessPage() {
         </div>
       </div>
 
-      {/* Tab Content */}
       {activeTab === 'Attendance' && (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
@@ -349,7 +344,7 @@ export function AttendanceAccessPage() {
                 {isAdmin && !ev.resolved && ev.rfidUid && (
                   <button
                     type="button"
-                    onClick={() => unblockStudentCard(ev.rfidUid!)}
+                    onClick={() => unblockStudentCard(ev.rfidUid)}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700"
                   >
                     <Unlock className="w-3.5 h-3.5" />
@@ -362,7 +357,6 @@ export function AttendanceAccessPage() {
         </div>
       )}
 
-      {/* Manual Correction Modal */}
       <Modal
         open={Boolean(correctingRow)}
         onClose={() => setCorrectingRow(null)}
@@ -390,7 +384,7 @@ export function AttendanceAccessPage() {
               <label className="block text-xs font-semibold mb-1">Updated Attendance Status</label>
               <select
                 value={correctionStatus}
-                onChange={(e) => setCorrectionStatus(e.target.value as AttendanceStatus)}
+                onChange={(e) => setCorrectionStatus(e.target.value)}
                 className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
               >
                 <option value="PRESENT">PRESENT (≤ 15 min)</option>
@@ -421,7 +415,6 @@ export function AttendanceAccessPage() {
         )}
       </Modal>
 
-      {/* Private Snapshot Viewer */}
       <Modal
         open={Boolean(snapshotPreview)}
         onClose={() => setSnapshotPreview(null)}

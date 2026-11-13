@@ -3,26 +3,26 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { PlatformProvider, ROLE_ALLOWED_PAGES, usePlatform } from './context/PlatformContext';
-import { AppShell } from './components/layout/AppShell';
-import { ToastContainer } from './components/ui/ToastContainer';
-import { AIAssistantPage } from './pages/AIAssistantPage';
-import { AIHandRaisePage } from './pages/AIHandRaisePage';
-import { AttendanceAccessPage } from './pages/AttendanceAccessPage';
-import { CameraMonitoringPage } from './pages/CameraMonitoringPage';
-import { DashboardPage } from './pages/DashboardPage';
-import { DeviceManagementPage } from './pages/DeviceManagementPage';
-import { HistoryReportsPage } from './pages/HistoryReportsPage';
-import { LoginPage } from './pages/LoginPage';
-import { NotificationsPage } from './pages/NotificationsPage';
-import { OfflineSyncPage } from './pages/OfflineSyncPage';
-import { RemoteConfigOTAPage } from './pages/RemoteConfigOTAPage';
-import { SafetyEmergencyPage } from './pages/SafetyEmergencyPage';
-import { SettingsPage } from './pages/SettingsPage';
-import { StudentManagementPage } from './pages/StudentManagementPage';
-import { UserManagementPage } from './pages/UserManagementPage';
-import { WeatherAnalyticsPage } from './pages/WeatherAnalyticsPage';
-import { WifiCsiPage } from './pages/WifiCsiPage';
+import { PlatformProvider, ROLE_ALLOWED_PAGES, usePlatform } from './context/PlatformContext.jsx';
+import { AppShell } from './components/layout/AppShell.jsx';
+import { ToastContainer } from './components/ui/ToastContainer.jsx';
+import { AIAssistantPage } from './pages/AIAssistantPage.jsx';
+import { AIHandRaisePage } from './pages/AIHandRaisePage.jsx';
+import { AttendanceAccessPage } from './pages/AttendanceAccessPage.jsx';
+import { CameraMonitoringPage } from './pages/CameraMonitoringPage.jsx';
+import { DashboardPage } from './pages/DashboardPage.jsx';
+import { DeviceManagementPage } from './pages/DeviceManagementPage.jsx';
+import { HistoryReportsPage } from './pages/HistoryReportsPage.jsx';
+import { LoginPage } from './pages/LoginPage.jsx';
+import { NotificationsPage } from './pages/NotificationsPage.jsx';
+import { OfflineSyncPage } from './pages/OfflineSyncPage.jsx';
+import { RemoteConfigOTAPage } from './pages/RemoteConfigOTAPage.jsx';
+import { SafetyEmergencyPage } from './pages/SafetyEmergencyPage.jsx';
+import { SettingsPage } from './pages/SettingsPage.jsx';
+import { StudentManagementPage } from './pages/StudentManagementPage.jsx';
+import { UserManagementPage } from './pages/UserManagementPage.jsx';
+import { WeatherAnalyticsPage } from './pages/WeatherAnalyticsPage.jsx';
+import { WifiCsiPage } from './pages/WifiCsiPage.jsx';
 
 function PlatformRouter() {
   const { currentUser, activePage } = usePlatform();

@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AlertTriangle, Eye, EyeOff, Lock, Map, ShieldCheck } from 'lucide-react';
-import { usePlatform } from '../context/PlatformContext';
+import { usePlatform } from '../context/PlatformContext.jsx';
 import { ASSETS } from '../data/seedData';
-import { UserRole } from '../types';
-import { Logo } from '../components/ui/Logo';
-import { Modal } from '../components/ui/Modal';
-import { SitemapModal } from '../components/layout/SitemapModal';
+import { Logo } from '../components/ui/Logo.jsx';
+import { Modal } from '../components/ui/Modal.jsx';
+import { SitemapModal } from '../components/layout/SitemapModal.jsx';
 
 export function LoginPage() {
   const { login, quickLoginRole, setSitemapOpen, pushToast } = usePlatform();
@@ -13,7 +12,7 @@ export function LoginPage() {
   const [password, setPassword] = useState('Password123!');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState(null);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockoutSeconds, setLockoutSeconds] = useState(0);
   const [forgotOpen, setForgotOpen] = useState(false);
@@ -34,7 +33,7 @@ export function LoginPage() {
     return () => clearInterval(timer);
   }, [lockoutSeconds]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (lockoutSeconds > 0) return;
 
@@ -54,7 +53,7 @@ export function LoginPage() {
     }
   };
 
-  const roles: Array<{ role: UserRole; email: string; desc: string }> = [
+  const roles = [
     { role: 'Admin', email: 'admin@fastrobox.edu', desc: 'Full 17-page platform & hardware control' },
     { role: 'Teacher', email: 'teacher@fastrobox.edu', desc: 'Classroom, attendance, cameras & emergency' },
     { role: 'Student', email: 'student@fastrobox.edu', desc: 'Personal profile, attendance & notices' },
@@ -63,7 +62,6 @@ export function LoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col lg:flex-row">
-      {/* Left Brand & Hardware Visual Column */}
       <div className="lg:w-[48%] bg-[#0B1324] text-white p-8 lg:p-12 flex flex-col justify-between relative overflow-hidden">
         <div className="flex items-center justify-between gap-4 z-10">
           <Logo light />
@@ -110,7 +108,6 @@ export function LoginPage() {
         </div>
       </div>
 
-      {/* Right Authentication Form Column */}
       <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
         <div className="w-full max-w-md space-y-6">
           <div>
@@ -218,7 +215,6 @@ export function LoginPage() {
             </button>
           </form>
 
-          {/* Role-Based Demo Access Cards */}
           <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-2.5">
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
               <span className="font-semibold flex items-center gap-1.5">

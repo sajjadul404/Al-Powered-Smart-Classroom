@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { Bell, Check, CheckCheck } from 'lucide-react';
-import { usePlatform } from '../context/PlatformContext';
-import { NotificationCategory } from '../types';
-import { StatusBadge } from '../components/ui/StatusBadge';
+import { usePlatform } from '../context/PlatformContext.jsx';
+import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
-const ALL_CATEGORIES: Array<'ALL' | NotificationCategory> = [
+const ALL_CATEGORIES = [
   'ALL',
   'Fire Alert',
   'Panic Alert',
@@ -23,9 +22,9 @@ const ALL_CATEGORIES: Array<'ALL' | NotificationCategory> = [
 
 export function NotificationsPage() {
   const { notifications, setNotifications, acknowledgeNotification } = usePlatform();
-  const [categoryFilter, setCategoryFilter] = useState<'ALL' | NotificationCategory>('ALL');
-  const [readFilter, setReadFilter] = useState<'ALL' | 'UNREAD' | 'READ'>('ALL');
-  const [priorityFilter, setPriorityFilter] = useState<'ALL' | 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'>('ALL');
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [readFilter, setReadFilter] = useState('ALL');
+  const [priorityFilter, setPriorityFilter] = useState('ALL');
 
   const filtered = notifications.filter((n) => {
     const matchCat = categoryFilter === 'ALL' || n.category === categoryFilter;
@@ -62,7 +61,7 @@ export function NotificationsPage() {
         <select
           aria-label="Filter Notification Category"
           value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value as 'ALL' | NotificationCategory)}
+          onChange={(e) => setCategoryFilter(e.target.value)}
           className="px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
         >
           {ALL_CATEGORIES.map((c) => (
@@ -75,7 +74,7 @@ export function NotificationsPage() {
         <select
           aria-label="Filter Priority"
           value={priorityFilter}
-          onChange={(e) => setPriorityFilter(e.target.value as typeof priorityFilter)}
+          onChange={(e) => setPriorityFilter(e.target.value)}
           className="px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
         >
           <option value="ALL">All Priorities</option>
@@ -86,7 +85,7 @@ export function NotificationsPage() {
         </select>
 
         <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
-          {(['ALL', 'UNREAD', 'READ'] as const).map((rf) => (
+          {['ALL', 'UNREAD', 'READ'].map((rf) => (
             <button
               key={rf}
               type="button"

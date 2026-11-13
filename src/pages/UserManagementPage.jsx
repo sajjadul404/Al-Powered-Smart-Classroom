@@ -1,27 +1,26 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Edit2, KeyRound, Plus, Search, Shield, Trash2, UserCheck, UserX } from 'lucide-react';
-import { usePlatform } from '../context/PlatformContext';
+import { usePlatform } from '../context/PlatformContext.jsx';
 import { ASSETS } from '../data/seedData';
-import { PlatformUser, UserRole } from '../types';
-import { Modal } from '../components/ui/Modal';
-import { StatusBadge } from '../components/ui/StatusBadge';
+import { Modal } from '../components/ui/Modal.jsx';
+import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
 export function UserManagementPage() {
   const { users, setUsers, currentUser, pushToast, addAuditLog } = usePlatform();
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState<'ALL' | UserRole>('ALL');
+  const [roleFilter, setRoleFilter] = useState('ALL');
   const [formOpen, setFormOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<PlatformUser | null>(null);
-  const [detailsUser, setDetailsUser] = useState<PlatformUser | null>(null);
-  const [resetUser, setResetUser] = useState<PlatformUser | null>(null);
-  const [deleteUser, setDeleteUser] = useState<PlatformUser | null>(null);
+  const [editingUser, setEditingUser] = useState(null);
+  const [detailsUser, setDetailsUser] = useState(null);
+  const [resetUser, setResetUser] = useState(null);
+  const [deleteUser, setDeleteUser] = useState(null);
   const [newPassword, setNewPassword] = useState('Password123!');
 
   const [form, setForm] = useState({
     name: '',
     email: '',
     username: '',
-    role: 'Teacher' as UserRole,
+    role: 'Teacher',
     assignedRoom: 'CSE-401',
     password: 'Password123!',
   });
@@ -42,7 +41,7 @@ export function UserManagementPage() {
     setFormOpen(true);
   };
 
-  const openEdit = (u: PlatformUser) => {
+  const openEdit = (u) => {
     setEditingUser(u);
     setForm({
       name: u.name,
@@ -55,7 +54,7 @@ export function UserManagementPage() {
     setFormOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = (e) => {
     e.preventDefault();
     if (editingUser) {
       setUsers((prev) =>
@@ -68,7 +67,7 @@ export function UserManagementPage() {
       addAuditLog('EDIT_USER', form.email, `Updated role to ${form.role}`);
       pushToast({ type: 'success', title: 'User Updated', description: `${form.name} saved.` });
     } else {
-      const created: PlatformUser = {
+      const created = {
         id: `usr-${Date.now()}`,
         name: form.name,
         email: form.email,
@@ -88,7 +87,7 @@ export function UserManagementPage() {
     setFormOpen(false);
   };
 
-  const toggleStatus = (u: PlatformUser) => {
+  const toggleStatus = (u) => {
     if (u.id === currentUser?.id) {
       pushToast({ type: 'warning', title: 'Action Blocked', description: 'Cannot deactivate your currently signed-in Admin account.' });
       return;
@@ -118,7 +117,6 @@ export function UserManagementPage() {
         </button>
       </div>
 
-      {/* Filters */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -131,7 +129,7 @@ export function UserManagementPage() {
           />
         </div>
         <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg overflow-x-auto">
-          {(['ALL', 'Admin', 'Teacher', 'Student', 'Guardian'] as const).map((role) => (
+          {['ALL', 'Admin', 'Teacher', 'Student', 'Guardian'].map((role) => (
             <button
               key={role}
               type="button"
@@ -146,7 +144,6 @@ export function UserManagementPage() {
         </div>
       </div>
 
-      {/* Data Table */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -248,7 +245,6 @@ export function UserManagementPage() {
         </div>
       </div>
 
-      {/* Add/Edit Modal */}
       <Modal
         open={formOpen}
         onClose={() => setFormOpen(false)}
@@ -292,7 +288,7 @@ export function UserManagementPage() {
               <label className="block text-xs font-semibold mb-1">Role</label>
               <select
                 value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value as UserRole })}
+                onChange={(e) => setForm({ ...form, role: e.target.value })}
                 className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
               >
                 <option value="Admin">Admin</option>
@@ -334,7 +330,6 @@ export function UserManagementPage() {
         </form>
       </Modal>
 
-      {/* User Details + Login History Modal */}
       <Modal
         open={Boolean(detailsUser)}
         onClose={() => setDetailsUser(null)}
@@ -372,7 +367,6 @@ export function UserManagementPage() {
         )}
       </Modal>
 
-      {/* Reset Password Modal */}
       <Modal open={Boolean(resetUser)} onClose={() => setResetUser(null)} title="Reset User Password">
         {resetUser && (
           <form
@@ -408,7 +402,6 @@ export function UserManagementPage() {
         )}
       </Modal>
 
-      {/* Delete User Confirmation Modal */}
       <Modal open={Boolean(deleteUser)} onClose={() => setDeleteUser(null)} title="Confirm User Deletion">
         {deleteUser && (
           <div className="space-y-4">

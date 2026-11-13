@@ -1,24 +1,12 @@
 import { useState } from 'react';
 
-interface LineSeries {
-  name: string;
-  color: string;
-  values: number[];
-  unit?: string;
-}
-
 export function SimpleLineChart({
   labels,
   series,
   height = 220,
   thresholds,
-}: {
-  labels: string[];
-  series: LineSeries[];
-  height?: number;
-  thresholds?: Array<{ label: string; value: number; color: string }>;
 }) {
-  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const [hoverIdx, setHoverIdx] = useState(null);
   const w = 640;
   const h = height;
   const padL = 42;
@@ -34,9 +22,9 @@ export function SimpleLineChart({
   const maxVal = Math.ceil(Math.max(...allVals, 10) + 2);
   const span = Math.max(1, maxVal - minVal);
 
-  const xFor = (i: number) =>
+  const xFor = (i) =>
     labels.length <= 1 ? padL : padL + (i / (labels.length - 1)) * (w - padL - padR);
-  const yFor = (v: number) => padT + ((maxVal - v) / span) * (h - padT - padB);
+  const yFor = (v) => padT + ((maxVal - v) / span) * (h - padT - padB);
 
   const ticks = 4;
   const yTicks = Array.from({ length: ticks + 1 }, (_, i) => minVal + (span * i) / ticks);
@@ -135,13 +123,7 @@ export function SimpleLineChart({
   );
 }
 
-export function SimpleBarChart({
-  data,
-  height = 180,
-}: {
-  data: Array<{ label: string; value: number; color?: string }>;
-  height?: number;
-}) {
+export function SimpleBarChart({ data, height = 180 }) {
   const maxVal = Math.max(...data.map((d) => d.value), 1);
   return (
     <div className="flex items-end gap-3 w-full pt-4" style={{ height }}>

@@ -12,10 +12,10 @@ import {
   UserCheck,
   Users,
 } from 'lucide-react';
-import { usePlatform } from '../context/PlatformContext';
+import { usePlatform } from '../context/PlatformContext.jsx';
 import { UI_COPY } from '../i18n';
-import { SimpleBarChart, SimpleLineChart } from '../components/ui/Charts';
-import { StatusBadge } from '../components/ui/StatusBadge';
+import { SimpleBarChart, SimpleLineChart } from '../components/ui/Charts.jsx';
+import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
 export function DashboardPage() {
   const {
@@ -40,7 +40,7 @@ export function DashboardPage() {
   } = usePlatform();
 
   const [dateFilter, setDateFilter] = useState('2026-11-12');
-  const [weatherSummary, setWeatherSummary] = useState<{ temp: number; condition: string; humidity: number; stale: boolean }>({
+  const [weatherSummary, setWeatherSummary] = useState({
     temp: 32.1,
     condition: 'Partly Cloudy',
     humidity: 69,
@@ -83,7 +83,6 @@ export function DashboardPage() {
     ? 'WARNING'
     : 'SAFE';
 
-  // STUDENT DASHBOARD
   if (currentUser.role === 'Student') {
     const myStudent = students.find((s) => s.studentId === currentUser.linkedStudentId) ?? students[0];
     const myAttendance = attendance.filter((a) => a.studentId === myStudent.studentId);
@@ -169,7 +168,6 @@ export function DashboardPage() {
     );
   }
 
-  // GUARDIAN DASHBOARD
   if (currentUser.role === 'Guardian') {
     const child = students.find((s) => s.studentId === currentUser.linkedStudentId) ?? students[0];
     const childAtt = attendance.filter((a) => a.studentId === child.studentId);
@@ -239,15 +237,7 @@ export function DashboardPage() {
     );
   }
 
-  // ADMIN & TEACHER OVERVIEW DASHBOARD
-  const summaryCards: Array<{
-    label: string;
-    value: string | number;
-    sub: string;
-    badge?: string;
-    icon: React.ComponentType<{ className?: string }>;
-    target: Parameters<typeof setActivePage>[0];
-  }> = [
+  const summaryCards = [
     { label: copy.totalStudents, value: students.length, sub: 'Enrolled', icon: Users, target: 'students' },
     { label: copy.presentStudents, value: presentCount, sub: '≤ 15 min rule', badge: 'PRESENT', icon: UserCheck, target: 'attendance' },
     { label: copy.absentStudents, value: absentCount, sub: '> 45 min rule', badge: absentCount > 0 ? 'ABSENT' : 'SAFE', icon: Users, target: 'attendance' },
@@ -262,7 +252,6 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header & Quick Filters */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">
@@ -292,7 +281,6 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* Top 10 Summary KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
         {summaryCards.map((card) => {
           const Icon = card.icon;
@@ -322,7 +310,6 @@ export function DashboardPage() {
         })}
       </div>
 
-      {/* Main Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
@@ -369,9 +356,7 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* Live Classroom Status, Safety Panel, Device Health & Weather */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* Live Classroom Status */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="font-display text-sm font-semibold">Live Classroom Status</h3>
@@ -397,7 +382,6 @@ export function DashboardPage() {
           </div>
         </div>
 
-        {/* Safety Alert Panel */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="font-display text-sm font-semibold">Safety Alert Panel</h3>
@@ -440,7 +424,6 @@ export function DashboardPage() {
           )}
         </div>
 
-        {/* Device Health Summary */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="font-display text-sm font-semibold">Device Health Summary</h3>
@@ -466,7 +449,6 @@ export function DashboardPage() {
           </div>
         </div>
 
-        {/* Weather Overview */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="font-display text-sm font-semibold">Weather Overview</h3>
@@ -489,7 +471,6 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* Bottom 3 Tables: Recent Attendance, Security Events, Notifications */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">

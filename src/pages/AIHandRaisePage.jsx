@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { CheckCircle2, Hand, Layers } from 'lucide-react';
-import { usePlatform } from '../context/PlatformContext';
+import { usePlatform } from '../context/PlatformContext.jsx';
 import { ASSETS } from '../data/seedData';
-import { StatusBadge } from '../components/ui/StatusBadge';
+import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
 export function AIHandRaisePage() {
   const { handRaiseEvents, setHandRaiseEvents, addNotification, addHistoryLog, pushToast } = usePlatform();
@@ -44,7 +44,7 @@ export function AIHandRaisePage() {
     return () => clearInterval(timer);
   }, [holding, setHandRaiseEvents, addNotification, addHistoryLog, pushToast]);
 
-  const ackEvent = (id: string) => {
+  const ackEvent = (id) => {
     setHandRaiseEvents((prev) => prev.map((e) => (e.id === id ? { ...e, acknowledged: true } : e)));
   };
 
@@ -71,7 +71,6 @@ export function AIHandRaisePage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Live Classroom Preview + 4s Rule Progress */}
         <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-base font-semibold">Live Classroom Vision Preview</h2>
@@ -119,7 +118,6 @@ export function AIHandRaisePage() {
           </div>
         </div>
 
-        {/* Custom AI Model Information & Confusion Matrix */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-base font-semibold flex items-center gap-2">
@@ -156,7 +154,6 @@ export function AIHandRaisePage() {
             </div>
           </div>
 
-          {/* 2x2 Confusion Matrix */}
           <div>
             <p className="text-xs font-semibold mb-2">Held-Out Confusion Matrix (n = 60)</p>
             <div className="grid grid-cols-3 gap-1 text-center text-[11px]">
@@ -174,7 +171,6 @@ export function AIHandRaisePage() {
         </div>
       </div>
 
-      {/* Hand-Raise Event History */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
         <h2 className="font-display text-base font-semibold mb-4">Hand-Raise Event History</h2>
         <div className="overflow-x-auto">

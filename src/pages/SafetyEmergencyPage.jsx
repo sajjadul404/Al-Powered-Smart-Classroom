@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { BellRing, DoorOpen, Droplets, Flame, Lock, ShieldAlert, Thermometer, Unlock } from 'lucide-react';
-import { usePlatform } from '../context/PlatformContext';
-import { SimpleLineChart } from '../components/ui/Charts';
-import { Modal } from '../components/ui/Modal';
-import { StatusBadge } from '../components/ui/StatusBadge';
+import { usePlatform } from '../context/PlatformContext.jsx';
+import { SimpleLineChart } from '../components/ui/Charts.jsx';
+import { Modal } from '../components/ui/Modal.jsx';
+import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
 export function SafetyEmergencyPage() {
   const {
@@ -85,7 +85,6 @@ export function SafetyEmergencyPage() {
         </div>
       </div>
 
-      {/* 6 Sensor Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex items-center justify-between">
           <div>
@@ -150,7 +149,6 @@ export function SafetyEmergencyPage() {
         </div>
       </div>
 
-      {/* Temperature Trend + Door & Fire Override Control */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
@@ -170,7 +168,6 @@ export function SafetyEmergencyPage() {
           />
         </div>
 
-        {/* Door & Emergency Override Panel */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col justify-between space-y-4">
           <div className="space-y-3">
             <h2 className="font-display text-base font-semibold">Door Control & Fire Override</h2>
@@ -225,7 +222,6 @@ export function SafetyEmergencyPage() {
         </div>
       </div>
 
-      {/* Emergency Event History */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
         <h2 className="font-display text-base font-semibold mb-4">Emergency Event History</h2>
         <div className="overflow-x-auto">

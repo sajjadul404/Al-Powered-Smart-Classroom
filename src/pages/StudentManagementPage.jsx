@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -11,11 +11,10 @@ import {
   ShieldCheck,
   Trash2,
 } from 'lucide-react';
-import { usePlatform } from '../context/PlatformContext';
+import { usePlatform } from '../context/PlatformContext.jsx';
 import { ASSETS } from '../data/seedData';
-import { StudentRecord } from '../types';
-import { Modal } from '../components/ui/Modal';
-import { StatusBadge } from '../components/ui/StatusBadge';
+import { Modal } from '../components/ui/Modal.jsx';
+import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
 export function StudentManagementPage() {
   const {
@@ -34,10 +33,10 @@ export function StudentManagementPage() {
 
   const [search, setSearch] = useState('');
   const [classFilter, setClassFilter] = useState('ALL');
-  const [detailTab, setDetailTab] = useState<'Overview' | 'Attendance' | 'RFID Information' | 'Face Registration' | 'Guardian' | 'Activity History'>('Overview');
+  const [detailTab, setDetailTab] = useState('Overview');
   const [formOpen, setFormOpen] = useState(false);
-  const [editingStudent, setEditingStudent] = useState<StudentRecord | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<StudentRecord | null>(null);
+  const [editingStudent, setEditingStudent] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const [form, setForm] = useState({
     studentId: '',
@@ -49,7 +48,7 @@ export function StudentManagementPage() {
     guardianPhone: '',
     guardianEmail: '',
     faceConsentSigned: true,
-    faceSlots: [true, true, true] as [boolean, boolean, boolean],
+    faceSlots: [true, true, true],
   });
 
   const isAdmin = currentUser?.role === 'Admin';
@@ -82,7 +81,7 @@ export function StudentManagementPage() {
     setFormOpen(true);
   };
 
-  const openEdit = (s: StudentRecord) => {
+  const openEdit = (s) => {
     setEditingStudent(s);
     setForm({
       studentId: s.studentId,
@@ -99,13 +98,13 @@ export function StudentManagementPage() {
     setFormOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = (e) => {
     e.preventDefault();
     if (!form.faceConsentSigned) {
       pushToast({ type: 'error', title: 'Consent Required', description: 'Biometric face registration requires signed privacy consent.' });
       return;
     }
-    const faceImages: [string | null, string | null, string | null] = [
+    const faceImages = [
       form.faceSlots[0] ? ASSETS.studentAvatar : null,
       form.faceSlots[1] ? ASSETS.studentAvatar : null,
       form.faceSlots[2] ? ASSETS.studentAvatar : null,
@@ -133,7 +132,7 @@ export function StudentManagementPage() {
       addAuditLog('UPDATE_STUDENT', form.studentId, `Updated profile & RFID (${form.rfidUid}) for ${form.name}`);
       pushToast({ type: 'success', title: 'Student Updated', description: `${form.name} saved.` });
     } else {
-      const created: StudentRecord = {
+      const created = {
         id: `st-${Date.now()}`,
         studentId: form.studentId,
         name: form.name,
@@ -158,7 +157,6 @@ export function StudentManagementPage() {
     setFormOpen(false);
   };
 
-  // SEPARATE STUDENT DETAILS PAGE (6 Tabs)
   if (detailStudent) {
     const studentAtt = attendance.filter((a) => a.studentId === detailStudent.studentId);
     const studentAccess = accessLogs.filter((l) => l.matchedStudentId === detailStudent.studentId);
@@ -195,7 +193,6 @@ export function StudentManagementPage() {
           )}
         </div>
 
-        {/* Profile Header Card */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <img
@@ -217,9 +214,8 @@ export function StudentManagementPage() {
           </div>
         </div>
 
-        {/* 6 Tabs */}
         <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-x-auto">
-          {(['Overview', 'Attendance', 'RFID Information', 'Face Registration', 'Guardian', 'Activity History'] as const).map((tab) => (
+          {['Overview', 'Attendance', 'RFID Information', 'Face Registration', 'Guardian', 'Activity History'].map((tab) => (
             <button
               key={tab}
               type="button"
@@ -343,7 +339,7 @@ export function StudentManagementPage() {
                             setStudents((prev) =>
                               prev.map((s) => {
                                 if (s.id !== detailStudent.id) return s;
-                                const nextImgs: [string | null, string | null, string | null] = [...s.faceImages] as [string | null, string | null, string | null];
+                                const nextImgs = [...s.faceImages];
                                 nextImgs[idx] = ASSETS.studentAvatar;
                                 return { ...s, faceImages: nextImgs };
                               })
@@ -398,7 +394,6 @@ export function StudentManagementPage() {
           )}
         </div>
 
-        {/* Delete Student Confirmation Modal */}
         <Modal open={Boolean(deleteTarget)} onClose={() => setDeleteTarget(null)} title="Delete Student & Biometric Data">
           {deleteTarget && (
             <div className="space-y-4">
@@ -455,7 +450,6 @@ export function StudentManagementPage() {
         )}
       </div>
 
-      {/* Filters */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -479,7 +473,6 @@ export function StudentManagementPage() {
         </select>
       </div>
 
-      {/* Table */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -580,7 +573,6 @@ export function StudentManagementPage() {
         </div>
       </div>
 
-      {/* Add/Edit Student Modal */}
       <Modal
         open={formOpen}
         onClose={() => setFormOpen(false)}
@@ -666,7 +658,6 @@ export function StudentManagementPage() {
             </div>
           </div>
 
-          {/* Register 3 Face Images */}
           <div>
             <label className="block text-xs font-semibold mb-2">Register 3 Face Images (Front, Left 15°, Right 15°)</label>
             <div className="grid grid-cols-3 gap-2.5">
@@ -677,7 +668,7 @@ export function StudentManagementPage() {
                     key={lbl}
                     type="button"
                     onClick={() => {
-                      const next: [boolean, boolean, boolean] = [...form.faceSlots] as [boolean, boolean, boolean];
+                      const next = [...form.faceSlots];
                       next[idx] = !next[idx];
                       setForm({ ...form, faceSlots: next });
                     }}
@@ -718,7 +709,6 @@ export function StudentManagementPage() {
         </form>
       </Modal>
 
-      {/* Delete Student Confirmation Modal */}
       <Modal open={Boolean(deleteTarget)} onClose={() => setDeleteTarget(null)} title="Delete Student & Biometric Data">
         {deleteTarget && (
           <div className="space-y-4">

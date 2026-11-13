@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Globe, Map, Moon, Shield, Sun } from 'lucide-react';
-import { ROLE_ALLOWED_PAGES, usePlatform } from '../context/PlatformContext';
-import { UserRole } from '../types';
-import { StatusBadge } from '../components/ui/StatusBadge';
+import { ROLE_ALLOWED_PAGES, usePlatform } from '../context/PlatformContext.jsx';
+import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
 export function SettingsPage() {
   const {
@@ -22,7 +21,7 @@ export function SettingsPage() {
     addAuditLog,
   } = usePlatform();
 
-  const [tab, setTab] = useState<'General' | 'Permissions' | 'System & Audit Logs'>('General');
+  const [tab, setTab] = useState('General');
   const [profileName, setProfileName] = useState(currentUser?.name ?? '');
   const [lockoutLimit, setLockoutLimit] = useState(3);
   const [mismatchLimit, setMismatchLimit] = useState(5);
@@ -30,9 +29,9 @@ export function SettingsPage() {
   if (!currentUser) return null;
 
   const isAdmin = currentUser.role === 'Admin';
-  const roles: UserRole[] = ['Admin', 'Teacher', 'Student', 'Guardian'];
+  const roles = ['Admin', 'Teacher', 'Student', 'Guardian'];
 
-  const handleSaveGeneral = (e: React.FormEvent) => {
+  const handleSaveGeneral = (e) => {
     e.preventDefault();
     addAuditLog('UPDATE_SETTINGS', selectedClassroom, `Updated profile/institution settings (${institutionName})`);
     pushToast({ type: 'success', title: 'Settings Saved', description: 'System preferences updated successfully.' });
@@ -59,7 +58,7 @@ export function SettingsPage() {
 
       {/* Tabs */}
       <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl w-fit">
-        {(['General', 'Permissions', 'System & Audit Logs'] as const).map((t) => {
+        {['General', 'Permissions', 'System & Audit Logs'].map((t) => {
           if (t !== 'General' && !isAdmin) return null;
           return (
             <button

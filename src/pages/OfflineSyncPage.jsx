@@ -1,6 +1,6 @@
 import { Bluetooth, CheckCircle2, HardDrive, RefreshCw, Router, Wifi, WifiOff } from 'lucide-react';
-import { usePlatform } from '../context/PlatformContext';
-import { StatusBadge } from '../components/ui/StatusBadge';
+import { usePlatform } from '../context/PlatformContext.jsx';
+import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
 export function OfflineSyncPage() {
   const {

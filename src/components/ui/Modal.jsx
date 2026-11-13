@@ -1,14 +1,5 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { X } from 'lucide-react';
-
-interface ModalProps {
-  open: boolean;
-  onClose: () => void;
-  title: string;
-  subtitle?: string;
-  children: React.ReactNode;
-  maxWidthClass?: string;
-}
 
 export function Modal({
   open,
@@ -17,10 +8,10 @@ export function Modal({
   subtitle,
   children,
   maxWidthClass = 'max-w-lg',
-}: ModalProps) {
+}) {
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
+    const onKey = (e) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKey);

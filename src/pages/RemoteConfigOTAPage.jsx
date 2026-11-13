@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { AlertTriangle, CheckCircle2, History, RotateCcw, ShieldCheck, Sliders, UploadCloud } from 'lucide-react';
-import { usePlatform } from '../context/PlatformContext';
-import { Modal } from '../components/ui/Modal';
-import { StatusBadge } from '../components/ui/StatusBadge';
+import { usePlatform } from '../context/PlatformContext.jsx';
+import { Modal } from '../components/ui/Modal.jsx';
+import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
-export function RemoteConfigOTAPage({ initialSection }: { initialSection: 'config' | 'ota' }) {
+export function RemoteConfigOTAPage({ initialSection }) {
   const {
     config,
     updateConfig,
@@ -19,24 +19,23 @@ export function RemoteConfigOTAPage({ initialSection }: { initialSection: 'confi
     pushToast,
   } = usePlatform();
 
-  const [section, setSection] = useState<'config' | 'ota'>(initialSection);
+  const [section, setSection] = useState(initialSection);
   const [draft, setDraft] = useState(config);
-  const [configError, setConfigError] = useState<string | null>(null);
-  const [configSuccess, setConfigSuccess] = useState<string | null>(null);
+  const [configError, setConfigError] = useState(null);
+  const [configSuccess, setConfigSuccess] = useState(null);
 
-  // OTA states
   const [newVersion, setNewVersion] = useState('v2.5.0');
   const [firmwareFile, setFirmwareFile] = useState('fastrobox_esp32s3_v2.5.0.bin');
-  const [firmwareError, setFirmwareError] = useState<string | null>(null);
+  const [firmwareError, setFirmwareError] = useState(null);
   const [firmwareVerified, setFirmwareVerified] = useState(true);
   const [confirmOtaOpen, setConfirmOtaOpen] = useState(false);
-  const [otaProgress, setOtaProgress] = useState<number | null>(null);
-  const [otaStatusText, setOtaStatusText] = useState<string>('Idle — Ready for signed .bin image');
-  const [restartStatus, setRestartStatus] = useState<string>('Device running normally (no pending reboot)');
+  const [otaProgress, setOtaProgress] = useState(null);
+  const [otaStatusText, setOtaStatusText] = useState('Idle — Ready for signed .bin image');
+  const [restartStatus, setRestartStatus] = useState('Device running normally (no pending reboot)');
 
   const activeDevice = devices[0];
 
-  const handleSaveConfig = (e: React.FormEvent) => {
+  const handleSaveConfig = (e) => {
     e.preventDefault();
     const res = updateConfig(draft, currentUser?.name ?? 'Admin');
     if (!res.ok) {
@@ -49,7 +48,7 @@ export function RemoteConfigOTAPage({ initialSection }: { initialSection: 'confi
     pushToast({ type: 'success', title: 'Configuration Saved', description: `Thresholds updated (${draft.tempWarningThreshold}°C / ${draft.tempDangerThreshold}°C).` });
   };
 
-  const verifyFirmwareFilename = (name: string) => {
+  const verifyFirmwareFilename = (name) => {
     setFirmwareFile(name);
     if (!name.endsWith('.bin') || name.toLowerCase().includes('corrupt') || name.toLowerCase().includes('invalid')) {
       setFirmwareVerified(false);
@@ -105,7 +104,7 @@ export function RemoteConfigOTAPage({ initialSection }: { initialSection: 'confi
     }, 350);
   };
 
-  const handleRollback = (targetVersion: string) => {
+  const handleRollback = (targetVersion) => {
     const ts = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const currentVer = activeDevice.firmwareVersion;
     setDevices((prev) =>
@@ -278,7 +277,6 @@ export function RemoteConfigOTAPage({ initialSection }: { initialSection: 'confi
             </div>
           </form>
 
-          {/* Configuration History */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3">
             <h2 className="font-display text-base font-semibold flex items-center gap-2">
               <History className="w-4 h-4 text-blue-600" />
@@ -371,7 +369,6 @@ export function RemoteConfigOTAPage({ initialSection }: { initialSection: 'confi
                 </div>
               </div>
 
-              {/* Update Progress & Restart Status */}
               <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold">{otaStatusText}</span>
@@ -398,7 +395,6 @@ export function RemoteConfigOTAPage({ initialSection }: { initialSection: 'confi
               </div>
             </div>
 
-            {/* Rollback & Verification Panel */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4">
               <h2 className="font-display text-base font-semibold flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
@@ -422,7 +418,6 @@ export function RemoteConfigOTAPage({ initialSection }: { initialSection: 'confi
             </div>
           </div>
 
-          {/* Update History */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
             <h2 className="font-display text-base font-semibold mb-4">OTA Update History</h2>
             <div className="overflow-x-auto">

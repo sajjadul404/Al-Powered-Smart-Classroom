@@ -1,4 +1,4 @@
-export function Logo({ compact = false, light = false }: { compact?: boolean; light?: boolean }) {
+export function Logo({ compact = false, light = false }) {
   return (
     <div className="flex items-center gap-2.5 shrink-0">
       <svg
