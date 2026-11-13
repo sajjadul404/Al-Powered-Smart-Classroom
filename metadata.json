@@ -1,0 +1,6 @@
+{
+  "name": "FastRobox 1.0 – Smart Classroom Platform",
+  "description": "AI-Powered Smart Classroom Monitoring and Management Platform connected to ESP32-S3-CAM for Safety, Access, Vision, and Wi-Fi CSI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
