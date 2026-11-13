@@ -237,13 +237,16 @@ export function PlatformProvider({ children }) {
     return () => clearInterval(interval);
   }, [connectionMode]);
 
-  const login = (identifier, password) => {
+  const login = (identifier, password, expectedRole) => {
     const clean = identifier.trim().toLowerCase();
     const matched = users.find(
       (u) => u.email.toLowerCase() === clean || u.username.toLowerCase() === clean
     );
     if (!matched) {
       return { ok: false, error: 'Invalid username/email or password.' };
+    }
+    if (expectedRole && matched.role !== expectedRole) {
+      return { ok: false, error: `Selected role (${expectedRole}) does not match this account (${matched.role}).` };
     }
     if (matched.status !== 'ACTIVE') {
       return { ok: false, error: 'This account has been deactivated by an Administrator.' };

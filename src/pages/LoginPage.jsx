@@ -1,13 +1,21 @@
 import { useEffect, useState } from 'react';
-import { AlertTriangle, Eye, EyeOff, Lock, Map, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, ChevronDown, Eye, EyeOff, Lock, Map } from 'lucide-react';
 import { usePlatform } from '../context/PlatformContext.jsx';
 import { ASSETS } from '../data/seedData';
 import { Logo } from '../components/ui/Logo.jsx';
 import { Modal } from '../components/ui/Modal.jsx';
 import { SitemapModal } from '../components/layout/SitemapModal.jsx';
 
+const ROLE_OPTIONS = [
+  { role: 'Admin', email: 'admin@fastrobox.edu', label: 'Admin — Full Platform & Hardware Control' },
+  { role: 'Teacher', email: 'teacher@fastrobox.edu', label: 'Teacher — Classroom, Attendance & Safety' },
+  { role: 'Student', email: 'student@fastrobox.edu', label: 'Student — Personal Profile & Attendance' },
+  { role: 'Guardian', email: 'guardian@fastrobox.edu', label: 'Guardian — Linked Child & Safety Alerts' },
+];
+
 export function LoginPage() {
-  const { login, quickLoginRole, setSitemapOpen, pushToast } = usePlatform();
+  const { login, setSitemapOpen, pushToast } = usePlatform();
+  const [selectedRole, setSelectedRole] = useState('Admin');
   const [identifier, setIdentifier] = useState('admin@fastrobox.edu');
   const [password, setPassword] = useState('Password123!');
   const [showPassword, setShowPassword] = useState(false);
@@ -33,11 +41,20 @@ export function LoginPage() {
     return () => clearInterval(timer);
   }, [lockoutSeconds]);
 
+  const handleRoleChange = (nextRole) => {
+    setSelectedRole(nextRole);
+    setErrorMsg(null);
+    const match = ROLE_OPTIONS.find((r) => r.role === nextRole);
+    if (match) {
+      setIdentifier(match.email);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (lockoutSeconds > 0) return;
 
-    const res = login(identifier, password);
+    const res = login(identifier, password, selectedRole);
     if (!res.ok) {
       const nextAttempts = failedAttempts + 1;
       setFailedAttempts(nextAttempts);
@@ -52,13 +69,6 @@ export function LoginPage() {
       setErrorMsg(null);
     }
   };
-
-  const roles = [
-    { role: 'Admin', email: 'admin@fastrobox.edu', desc: 'Full 17-page platform & hardware control' },
-    { role: 'Teacher', email: 'teacher@fastrobox.edu', desc: 'Classroom, attendance, cameras & emergency' },
-    { role: 'Student', email: 'student@fastrobox.edu', desc: 'Personal profile, attendance & notices' },
-    { role: 'Guardian', email: 'guardian@fastrobox.edu', desc: 'Linked child status & safety alerts' },
-  ];
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col lg:flex-row">
@@ -115,7 +125,7 @@ export function LoginPage() {
               Sign in to FastRobox 1.0
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Enter your institutional credentials or choose a demo role below.
+              Select your role and enter your institutional credentials to continue.
             </p>
           </div>
 
@@ -149,10 +159,39 @@ export function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label
+                htmlFor="login-role"
+                className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+              >
+                Role
+              </label>
+              <div className="relative">
+                <select
+                  id="login-role"
+                  disabled={lockoutSeconds > 0}
+                  value={selectedRole}
+                  onChange={(e) => handleRoleChange(e.target.value)}
+                  className="w-full appearance-none px-3.5 py-2.5 pr-10 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50"
+                >
+                  {ROLE_OPTIONS.map((opt) => (
+                    <option key={opt.role} value={opt.role}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-4 h-4 text-slate-400 pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" />
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="login-identifier"
+                className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+              >
                 Email or Username
               </label>
               <input
+                id="login-identifier"
                 type="text"
                 required
                 disabled={lockoutSeconds > 0}
@@ -164,11 +203,15 @@ export function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label
+                htmlFor="login-password"
+                className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+              >
                 Password
               </label>
               <div className="relative">
                 <input
+                  id="login-password"
                   type={showPassword ? 'text' : 'password'}
                   required
                   disabled={lockoutSeconds > 0}
@@ -211,32 +254,9 @@ export function LoginPage() {
               disabled={lockoutSeconds > 0}
               className="w-full py-2.5 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {lockoutSeconds > 0 ? `Locked (${lockoutSeconds}s)` : 'Sign In'}
+              {lockoutSeconds > 0 ? `Locked (${lockoutSeconds}s)` : `Sign In as ${selectedRole}`}
             </button>
           </form>
-
-          <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-2.5">
-            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-              <span className="font-semibold flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
-                Role-Based Demo Accounts (Password: Password123!)
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {roles.map((r) => (
-                <button
-                  key={r.role}
-                  type="button"
-                  disabled={lockoutSeconds > 0}
-                  onClick={() => quickLoginRole(r.role)}
-                  className="text-left p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-blue-500 transition-colors disabled:opacity-50"
-                >
-                  <p className="text-xs font-bold text-slate-900 dark:text-white">{r.role}</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{r.desc}</p>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 
