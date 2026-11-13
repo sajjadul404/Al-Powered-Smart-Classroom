@@ -20,12 +20,18 @@ import {
   SyncQueueItem,
 } from '../types';
 
+import doorCamImg from '../assets/images/classroom_door_cam_1794555600304.jpg';
+import roomCamImg from '../assets/images/classroom_room_cam_1794555599861.jpg';
+import esp32HardwareImg from '../assets/images/esp32_device_hardware_1794555599996.jpg';
+import adminAvatarImg from '../assets/images/avatar_admin_user_1794555600379.jpg';
+import studentAvatarImg from '../assets/images/avatar_student_sample_1794555601964.jpg';
+
 export const ASSETS = {
-  doorCam: '/src/assets/images/classroom_door_cam_1794555600304.jpg',
-  roomCam: '/src/assets/images/classroom_room_cam_1794555599861.jpg',
-  esp32Hardware: '/src/assets/images/esp32_device_hardware_1794555599996.jpg',
-  adminAvatar: '/src/assets/images/avatar_admin_user_1794555600379.jpg',
-  studentAvatar: '/src/assets/images/avatar_student_sample_1794555601964.jpg',
+  doorCam: doorCamImg,
+  roomCam: roomCamImg,
+  esp32Hardware: esp32HardwareImg,
+  adminAvatar: adminAvatarImg,
+  studentAvatar: studentAvatarImg,
 };
 
 export const INITIAL_USERS: PlatformUser[] = [

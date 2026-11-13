@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Edit2, KeyRound, Plus, Search, Shield, Trash2, UserCheck, UserX } from 'lucide-react';
 import { usePlatform } from '../context/PlatformContext.jsx';
 import { ASSETS } from '../data/seedData';
+import { hashPassword } from '../utils/passwordHash.js';
 import { Modal } from '../components/ui/Modal.jsx';
 import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
@@ -14,7 +15,8 @@ export function UserManagementPage() {
   const [detailsUser, setDetailsUser] = useState(null);
   const [resetUser, setResetUser] = useState(null);
   const [deleteUser, setDeleteUser] = useState(null);
-  const [newPassword, setNewPassword] = useState('Password123!');
+  const [newPassword, setNewPassword] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const [form, setForm] = useState({
     name: '',
@@ -22,7 +24,7 @@ export function UserManagementPage() {
     username: '',
     role: 'Teacher',
     assignedRoom: 'CSE-401',
-    password: 'Password123!',
+    password: '',
   });
 
   const filtered = users.filter((u) => {
@@ -37,7 +39,7 @@ export function UserManagementPage() {
 
   const openAdd = () => {
     setEditingUser(null);
-    setForm({ name: '', email: '', username: '', role: 'Teacher', assignedRoom: 'CSE-401', password: 'Password123!' });
+    setForm({ name: '', email: '', username: '', role: 'Teacher', assignedRoom: 'CSE-401', password: '' });
     setFormOpen(true);
   };
 
@@ -49,42 +51,89 @@ export function UserManagementPage() {
       username: u.username,
       role: u.role,
       assignedRoom: u.assignedRoom ?? 'CSE-401',
-      password: u.password ?? 'Password123!',
+      password: '',
     });
     setFormOpen(true);
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    if (editingUser) {
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.id === editingUser.id
-            ? { ...u, name: form.name, email: form.email, username: form.username, role: form.role, assignedRoom: form.assignedRoom }
-            : u
-        )
-      );
-      addAuditLog('EDIT_USER', form.email, `Updated role to ${form.role}`);
-      pushToast({ type: 'success', title: 'User Updated', description: `${form.name} saved.` });
-    } else {
-      const created = {
-        id: `usr-${Date.now()}`,
-        name: form.name,
-        email: form.email,
-        username: form.username || form.email.split('@')[0],
-        role: form.role,
-        status: 'ACTIVE',
-        avatar: form.role === 'Student' ? ASSETS.studentAvatar : ASSETS.adminAvatar,
-        password: form.password,
-        assignedRoom: form.assignedRoom,
-        lastLogin: 'Never',
-        loginHistory: [],
-      };
-      setUsers((prev) => [created, ...prev]);
-      addAuditLog('CREATE_USER', created.email, `Created ${created.role} account`);
-      pushToast({ type: 'success', title: 'User Created', description: `${created.name} (${created.role}) added.` });
+    if (saving) return;
+
+    const cleanEmail = form.email.trim().toLowerCase();
+    const cleanUsername = (form.username || cleanEmail.split('@')[0]).trim().toLowerCase();
+
+    const duplicate = users.find(
+      (u) =>
+        u.id !== editingUser?.id &&
+        (u.email.toLowerCase() === cleanEmail || u.username.toLowerCase() === cleanUsername)
+    );
+    if (duplicate) {
+      pushToast({
+        type: 'error',
+        title: 'Duplicate Account',
+        description: 'Another user already exists with that email or username.',
+      });
+      return;
     }
-    setFormOpen(false);
+
+    if (!editingUser && form.password.length < 6) {
+      pushToast({ type: 'error', title: 'Weak Password', description: 'Password must be at least 6 characters.' });
+      return;
+    }
+    if (editingUser && form.password && form.password.length < 6) {
+      pushToast({ type: 'error', title: 'Weak Password', description: 'New password must be at least 6 characters.' });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      if (editingUser) {
+        const updatedHash = form.password ? await hashPassword(form.password) : editingUser.passwordHash;
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === editingUser.id
+              ? {
+                  ...u,
+                  name: form.name.trim(),
+                  email: form.email.trim(),
+                  username: form.username.trim() || cleanUsername,
+                  role: form.role,
+                  assignedRoom: form.assignedRoom,
+                  passwordHash: updatedHash,
+                }
+              : u
+          )
+        );
+        addAuditLog(
+          'EDIT_USER',
+          form.email.trim(),
+          `Updated role=${form.role}${form.password ? ' and rotated PBKDF2 password hash' : ''}`
+        );
+        pushToast({ type: 'success', title: 'User Updated', description: `${form.name} saved.` });
+      } else {
+        const passwordHash = await hashPassword(form.password);
+        const created = {
+          id: `usr-${Date.now()}`,
+          name: form.name.trim(),
+          email: form.email.trim(),
+          username: cleanUsername,
+          role: form.role,
+          status: 'ACTIVE',
+          avatar: form.role === 'Student' ? ASSETS.studentAvatar : ASSETS.adminAvatar,
+          passwordHash,
+          assignedRoom: form.assignedRoom,
+          lastLogin: 'Never',
+          loginHistory: [],
+        };
+        setUsers((prev) => [created, ...prev]);
+        addAuditLog('CREATE_USER', created.email, `Created ${created.role} account with salted PBKDF2-SHA256 hash`);
+        pushToast({ type: 'success', title: 'User Created', description: `${created.name} (${created.role}) added.` });
+      }
+      setFormOpen(false);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const toggleStatus = (u) => {
@@ -104,7 +153,7 @@ export function UserManagementPage() {
         <div>
           <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">User Management</h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Manage Admin, Teacher, Student, and Guardian accounts, access statuses, and login history
+            Manage Admin, Teacher, Student, and Guardian accounts with salted PBKDF2-SHA256 password hashing
           </p>
         </div>
         <button
@@ -206,7 +255,7 @@ export function UserManagementPage() {
                         type="button"
                         onClick={() => {
                           setResetUser(u);
-                          setNewPassword('Password123!');
+                          setNewPassword('');
                         }}
                         title="Reset Password"
                         className="p-1.5 rounded text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40"
@@ -307,24 +356,26 @@ export function UserManagementPage() {
               />
             </div>
           </div>
-          {!editingUser && (
-            <div>
-              <label className="block text-xs font-semibold mb-1">Initial Password</label>
-              <input
-                type="password"
-                required
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
-              />
-            </div>
-          )}
+          <div>
+            <label className="block text-xs font-semibold mb-1">
+              {editingUser ? 'New Password (optional — leave blank to keep current)' : 'Initial Password (min 6 characters)'}
+            </label>
+            <input
+              type="password"
+              required={!editingUser}
+              minLength={6}
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              placeholder={editingUser ? 'Leave blank to keep existing hashed password' : 'Enter a strong password'}
+              className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+            />
+          </div>
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" onClick={() => setFormOpen(false)} className="px-4 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700">
               Cancel
             </button>
-            <button type="submit" className="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700">
-              {editingUser ? 'Save User' : 'Create User'}
+            <button type="submit" disabled={saving} className="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50">
+              {saving ? 'Hashing...' : editingUser ? 'Save User' : 'Create User'}
             </button>
           </div>
         </form>
@@ -344,6 +395,12 @@ export function UserManagementPage() {
                 <span>Assigned Classroom: <strong>{detailsUser.assignedRoom ?? 'CSE-401'}</strong></span>
               </div>
               <StatusBadge status={detailsUser.status} />
+            </div>
+            <div className="p-3 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 text-xs space-y-1">
+              <p className="font-semibold text-emerald-800 dark:text-emerald-300">Credential Storage: Salted PBKDF2-SHA256</p>
+              <p className="font-mono text-[11px] text-slate-600 dark:text-slate-400 truncate">
+                {detailsUser.passwordHash}
+              </p>
             </div>
             <div>
               <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Login History</h4>
@@ -370,32 +427,41 @@ export function UserManagementPage() {
       <Modal open={Boolean(resetUser)} onClose={() => setResetUser(null)} title="Reset User Password">
         {resetUser && (
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              setUsers((prev) => prev.map((u) => (u.id === resetUser.id ? { ...u, password: newPassword } : u)));
-              addAuditLog('RESET_PASSWORD', resetUser.email, 'Administrator reset user password');
-              pushToast({ type: 'success', title: 'Password Reset', description: `Updated credentials for ${resetUser.name}.` });
-              setResetUser(null);
+              if (newPassword.length < 6 || saving) return;
+              setSaving(true);
+              try {
+                const hashed = await hashPassword(newPassword);
+                setUsers((prev) => prev.map((u) => (u.id === resetUser.id ? { ...u, passwordHash: hashed } : u)));
+                addAuditLog('RESET_PASSWORD', resetUser.email, 'Administrator rotated PBKDF2-SHA256 password hash');
+                pushToast({ type: 'success', title: 'Password Reset', description: `Hashed & updated credentials for ${resetUser.name}.` });
+                setResetUser(null);
+                setNewPassword('');
+              } finally {
+                setSaving(false);
+              }
             }}
             className="space-y-4"
           >
             <p className="text-xs text-slate-600 dark:text-slate-300">
-              Set a new temporary password for <strong>{resetUser.name}</strong> ({resetUser.email}).
+              Set a new password for <strong>{resetUser.name}</strong> ({resetUser.email}). Only the new password will work after saving.
             </p>
             <input
-              type="text"
+              type="password"
               required
               minLength={6}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Enter new password (min 6 chars)"
               className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono"
             />
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setResetUser(null)} className="px-4 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700">
                 Cancel
               </button>
-              <button type="submit" className="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700">
-                Confirm Reset
+              <button type="submit" disabled={saving} className="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50">
+                {saving ? 'Hashing...' : 'Confirm Reset'}
               </button>
             </div>
           </form>
