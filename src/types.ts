@@ -37,7 +37,7 @@ export interface PlatformUser {
   role: UserRole;
   status: 'ACTIVE' | 'INACTIVE';
   avatar: string;
-  password?: string;
+  passwordHash: string;
   linkedStudentId?: string;
   assignedRoom?: string;
   lastLogin: string;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Globe, Map, Moon, Shield, Sun } from 'lucide-react';
+import { Globe, KeyRound, Map, Moon, Shield, Sun } from 'lucide-react';
 import { ROLE_ALLOWED_PAGES, usePlatform } from '../context/PlatformContext.jsx';
 import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
@@ -19,12 +19,18 @@ export function SettingsPage() {
     setSitemapOpen,
     pushToast,
     addAuditLog,
+    changeOwnPassword,
   } = usePlatform();
 
   const [tab, setTab] = useState('General');
   const [profileName, setProfileName] = useState(currentUser?.name ?? '');
   const [lockoutLimit, setLockoutLimit] = useState(3);
   const [mismatchLimit, setMismatchLimit] = useState(5);
+
+  const [currentPw, setCurrentPw] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [confirmPw, setConfirmPw] = useState('');
+  const [changingPw, setChangingPw] = useState(false);
 
   if (!currentUser) return null;
 
@@ -37,13 +43,40 @@ export function SettingsPage() {
     pushToast({ type: 'success', title: 'Settings Saved', description: 'System preferences updated successfully.' });
   };
 
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (changingPw) return;
+    if (newPw !== confirmPw) {
+      pushToast({ type: 'error', title: 'Mismatch', description: 'New password and confirmation do not match.' });
+      return;
+    }
+    setChangingPw(true);
+    try {
+      const res = await changeOwnPassword(currentPw, newPw);
+      if (!res.ok) {
+        pushToast({ type: 'error', title: 'Password Update Failed', description: res.error });
+        return;
+      }
+      setCurrentPw('');
+      setNewPw('');
+      setConfirmPw('');
+      pushToast({
+        type: 'success',
+        title: 'Password Updated',
+        description: 'Your new password has been hashed and saved. Previous password is no longer valid.',
+      });
+    } finally {
+      setChangingPw(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Settings & System Configuration</h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Profile, institution details, English/Bangla language, Light/Dark theme, RBAC permissions, and audit logs
+            Profile, institution details, English/Bangla language, Light/Dark theme, password security, RBAC permissions, and audit logs
           </p>
         </div>
         <button
@@ -76,129 +109,193 @@ export function SettingsPage() {
       </div>
 
       {tab === 'General' && (
-        <form onSubmit={handleSaveGeneral} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-4">
-            <h2 className="font-display text-base font-semibold">Profile & Institution Information</h2>
-            <div>
-              <label className="block text-xs font-semibold mb-1">Display Name ({currentUser.role})</label>
-              <input
-                type="text"
-                value={profileName}
-                onChange={(e) => setProfileName(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
-              />
+        <div className="space-y-6">
+          <form onSubmit={handleSaveGeneral} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-4">
+              <h2 className="font-display text-base font-semibold">Profile & Institution Information</h2>
+              <div>
+                <label className="block text-xs font-semibold mb-1">Display Name ({currentUser.role})</label>
+                <input
+                  type="text"
+                  value={profileName}
+                  onChange={(e) => setProfileName(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1">School / Institution Name</label>
+                <input
+                  type="text"
+                  disabled={!isAdmin}
+                  value={institutionName}
+                  onChange={(e) => setInstitutionName(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 disabled:opacity-60"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1">Active Classroom / Room ID</label>
+                <select
+                  value={selectedClassroom}
+                  onChange={(e) => setSelectedClassroom(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+                >
+                  <option value="CSE-401">CSE-401 (Main Smart Classroom)</option>
+                  <option value="CSE-402">CSE-402 (Vision Lab)</option>
+                </select>
+              </div>
             </div>
-            <div>
-              <label className="block text-xs font-semibold mb-1">School / Institution Name</label>
-              <input
-                type="text"
-                disabled={!isAdmin}
-                value={institutionName}
-                onChange={(e) => setInstitutionName(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 disabled:opacity-60"
-              />
+
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-5">
+              <h2 className="font-display text-base font-semibold">Language, Theme & Security</h2>
+
+              <div>
+                <label className="block text-xs font-semibold mb-2 flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Interface Language</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setLanguage('en')}
+                    className={`py-2.5 px-3 rounded-lg border text-xs font-semibold ${
+                      language === 'en' ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300' : 'border-slate-200 dark:border-slate-700'
+                    }`}
+                  >
+                    English (EN)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLanguage('bn')}
+                    className={`py-2.5 px-3 rounded-lg border text-xs font-semibold ${
+                      language === 'bn' ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300' : 'border-slate-200 dark:border-slate-700'
+                    }`}
+                  >
+                    বাংলা (Bangla)
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold mb-2">Theme Appearance</label>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setTheme('light')}
+                    className={`py-2.5 px-3 rounded-lg border text-xs font-semibold inline-flex items-center justify-center gap-1.5 ${
+                      theme === 'light' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 dark:border-slate-700'
+                    }`}
+                  >
+                    <Sun className="w-3.5 h-3.5" /> Light Mode
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTheme('dark')}
+                    className={`py-2.5 px-3 rounded-lg border text-xs font-semibold inline-flex items-center justify-center gap-1.5 ${
+                      theme === 'dark' ? 'border-blue-600 bg-blue-950/40 text-blue-300' : 'border-slate-200 dark:border-slate-700'
+                    }`}
+                  >
+                    <Moon className="w-3.5 h-3.5" /> Dark Mode
+                  </button>
+                </div>
+              </div>
+
+              {isAdmin && (
+                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Login Lockout Attempts</label>
+                    <input
+                      type="number"
+                      min={3}
+                      max={10}
+                      value={lockoutLimit}
+                      onChange={(e) => setLockoutLimit(Number(e.target.value))}
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Face Mismatch Card Lock</label>
+                    <input
+                      type="number"
+                      min={3}
+                      max={10}
+                      value={mismatchLimit}
+                      onChange={(e) => setMismatchLimit(Number(e.target.value))}
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end pt-2">
+                <button type="submit" className="px-5 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
+                  Save Preferences
+                </button>
+              </div>
             </div>
-            <div>
-              <label className="block text-xs font-semibold mb-1">Active Classroom / Room ID</label>
-              <select
-                value={selectedClassroom}
-                onChange={(e) => setSelectedClassroom(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+          </form>
+
+          <form
+            onSubmit={handleChangePassword}
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-4"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="font-display text-base font-semibold flex items-center gap-2">
+                <KeyRound className="w-4 h-4 text-blue-600" />
+                <span>Change Account Password (PBKDF2-SHA256)</span>
+              </h2>
+              <span className="text-xs font-mono text-slate-500">{currentUser.email}</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-semibold mb-1">Current Password</label>
+                <input
+                  type="password"
+                  required
+                  value={currentPw}
+                  onChange={(e) => setCurrentPw(e.target.value)}
+                  placeholder="Enter current password"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1">New Password (min 6 chars)</label>
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  value={newPw}
+                  onChange={(e) => setNewPw(e.target.value)}
+                  placeholder="Enter new password"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1">Confirm New Password</label>
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  value={confirmPw}
+                  onChange={(e) => setConfirmPw(e.target.value)}
+                  placeholder="Re-enter new password"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-4 pt-1">
+              <p className="text-xs text-slate-500">
+                Once changed, your password hash is updated immediately and old passwords will be rejected.
+              </p>
+              <button
+                type="submit"
+                disabled={changingPw}
+                className="px-5 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 shrink-0"
               >
-                <option value="CSE-401">CSE-401 (Main Smart Classroom)</option>
-                <option value="CSE-402">CSE-402 (Vision Lab)</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-5">
-            <h2 className="font-display text-base font-semibold">Language, Theme & Security</h2>
-
-            <div>
-              <label className="block text-xs font-semibold mb-2 flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-blue-600" />
-                <span>Interface Language</span>
-              </label>
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setLanguage('en')}
-                  className={`py-2.5 px-3 rounded-lg border text-xs font-semibold ${
-                    language === 'en' ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300' : 'border-slate-200 dark:border-slate-700'
-                  }`}
-                >
-                  English (EN)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLanguage('bn')}
-                  className={`py-2.5 px-3 rounded-lg border text-xs font-semibold ${
-                    language === 'bn' ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300' : 'border-slate-200 dark:border-slate-700'
-                  }`}
-                >
-                  বাংলা (Bangla)
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold mb-2">Theme Appearance</label>
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setTheme('light')}
-                  className={`py-2.5 px-3 rounded-lg border text-xs font-semibold inline-flex items-center justify-center gap-1.5 ${
-                    theme === 'light' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 dark:border-slate-700'
-                  }`}
-                >
-                  <Sun className="w-3.5 h-3.5" /> Light Mode
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTheme('dark')}
-                  className={`py-2.5 px-3 rounded-lg border text-xs font-semibold inline-flex items-center justify-center gap-1.5 ${
-                    theme === 'dark' ? 'border-blue-600 bg-blue-950/40 text-blue-300' : 'border-slate-200 dark:border-slate-700'
-                  }`}
-                >
-                  <Moon className="w-3.5 h-3.5" /> Dark Mode
-                </button>
-              </div>
-            </div>
-
-            {isAdmin && (
-              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <div>
-                  <label className="block text-xs font-semibold mb-1">Login Lockout Attempts</label>
-                  <input
-                    type="number"
-                    min={3}
-                    max={10}
-                    value={lockoutLimit}
-                    onChange={(e) => setLockoutLimit(Number(e.target.value))}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold mb-1">Face Mismatch Card Lock</label>
-                  <input
-                    type="number"
-                    min={3}
-                    max={10}
-                    value={mismatchLimit}
-                    onChange={(e) => setMismatchLimit(Number(e.target.value))}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono"
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="flex justify-end pt-2">
-              <button type="submit" className="px-5 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
-                Save Preferences
+                {changingPw ? 'Updating...' : 'Update Password'}
               </button>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       )}
 
       {tab === 'Permissions' && isAdmin && (

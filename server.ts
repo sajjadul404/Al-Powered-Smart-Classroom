@@ -1,4 +1,5 @@
 import express from 'express';
+import crypto from 'node:crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
@@ -149,6 +150,42 @@ async function startServer() {
 
   app.get('/api/health', (_req, res) => {
     res.json({ ok: true, service: 'fastrobox-smart-classroom', timestamp: new Date().toISOString() });
+  });
+
+  app.post('/api/auth/hash', (req, res) => {
+    const { password } = req.body ?? {};
+    if (typeof password !== 'string' || password.length === 0) {
+      return res.status(400).json({ error: 'Invalid password' });
+    }
+    const salt = crypto.randomBytes(16);
+    const derived = crypto.pbkdf2Sync(password, salt, 100000, 32, 'sha256');
+    return res.json({
+      passwordHash: `pbkdf2_sha256$100000$${salt.toString('hex')}$${derived.toString('hex')}`,
+    });
+  });
+
+  app.post('/api/auth/verify', (req, res) => {
+    const { password, passwordHash } = req.body ?? {};
+    if (typeof password !== 'string' || typeof passwordHash !== 'string') {
+      return res.json({ valid: false });
+    }
+    const parts = passwordHash.split('$');
+    if (parts.length !== 4 || parts[0] !== 'pbkdf2_sha256') {
+      return res.json({ valid: false });
+    }
+    const iterations = Number(parts[1]);
+    const saltHex = parts[2];
+    const expectedHex = parts[3];
+    if (!Number.isFinite(iterations) || iterations < 10000 || !saltHex || !expectedHex) {
+      return res.json({ valid: false });
+    }
+    const salt = Buffer.from(saltHex, 'hex');
+    const derived = crypto.pbkdf2Sync(password, salt, iterations, 32, 'sha256');
+    const expected = Buffer.from(expectedHex, 'hex');
+    if (derived.length !== expected.length) {
+      return res.json({ valid: false });
+    }
+    return res.json({ valid: crypto.timingSafeEqual(derived, expected) });
   });
 
   app.get('/api/weather', async (req, res) => {

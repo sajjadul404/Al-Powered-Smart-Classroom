@@ -22,6 +22,23 @@ import {
   INITIAL_TELEMETRY_SERIES,
   INITIAL_USERS,
 } from '../data/seedData';
+import { hashPassword, verifyPassword } from '../utils/passwordHash.js';
+
+const USERS_STORAGE_KEY = 'fastrobox_users_v2';
+
+function loadInitialUsers() {
+  try {
+    const raw = window.localStorage.getItem(USERS_STORAGE_KEY);
+    if (!raw) return INITIAL_USERS;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0) return INITIAL_USERS;
+    return parsed
+      .filter((u) => u && typeof u.email === 'string' && typeof u.passwordHash === 'string' && u.passwordHash.startsWith('pbkdf2_sha256$'))
+      .map(({ password: _stripped, ...safeUser }) => safeUser);
+  } catch {
+    return INITIAL_USERS;
+  }
+}
 
 export const ROLE_ALLOWED_PAGES = {
   Admin: [
@@ -80,7 +97,20 @@ export function PlatformProvider({ children }) {
   const [teamId] = useState('FR04');
   const [institutionName, setInstitutionName] = useState('Bangladesh University of Business & Technology (BUBT)');
 
-  const [users, setUsers] = useState(INITIAL_USERS);
+  const [users, setUsersState] = useState(loadInitialUsers);
+
+  const setUsers = (updater) => {
+    setUsersState((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      const sanitized = next.map(({ password: _stripped, ...safeUser }) => safeUser);
+      try {
+        window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(sanitized));
+      } catch {
+        // Ignore storage quota errors
+      }
+      return sanitized;
+    });
+  };
   const [students, setStudents] = useState(INITIAL_STUDENTS);
   const [attendance, setAttendance] = useState(INITIAL_ATTENDANCE);
   const [accessLogs, setAccessLogs] = useState(INITIAL_ACCESS_LOGS);
@@ -237,7 +267,7 @@ export function PlatformProvider({ children }) {
     return () => clearInterval(interval);
   }, [connectionMode]);
 
-  const login = (identifier, password, expectedRole) => {
+  const login = async (identifier, password, expectedRole) => {
     const clean = identifier.trim().toLowerCase();
     const matched = users.find(
       (u) => u.email.toLowerCase() === clean || u.username.toLowerCase() === clean
@@ -251,16 +281,33 @@ export function PlatformProvider({ children }) {
     if (matched.status !== 'ACTIVE') {
       return { ok: false, error: 'This account has been deactivated by an Administrator.' };
     }
-    if ((matched.password ?? 'Password123!') !== password) {
+
+    const isValid = await verifyPassword(password, matched.passwordHash);
+    if (!isValid) {
+      const failTs = nowStr();
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === matched.id
+            ? {
+                ...u,
+                loginHistory: [
+                  { id: `lh-${Date.now()}`, timestamp: failTs, ip: '192.168.1.24', device: 'Web Browser', status: 'FAILED' },
+                  ...(u.loginHistory ?? []),
+                ],
+              }
+            : u
+        )
+      );
       return { ok: false, error: 'Incorrect password. Please verify your credentials.' };
     }
+
     const ts = nowStr();
     const updatedUser = {
       ...matched,
       lastLogin: ts,
       loginHistory: [
         { id: `lh-${Date.now()}`, timestamp: ts, ip: '192.168.1.24', device: 'Web Browser', status: 'SUCCESS' },
-        ...matched.loginHistory,
+        ...(matched.loginHistory ?? []),
       ],
     };
     setUsers((prev) => prev.map((u) => (u.id === matched.id ? updatedUser : u)));
@@ -270,12 +317,25 @@ export function PlatformProvider({ children }) {
     return { ok: true };
   };
 
-  const quickLoginRole = (role) => {
-    const found = users.find((u) => u.role === role && u.status === 'ACTIVE');
-    if (!found) return;
-    setCurrentUser(found);
-    setActivePageState('dashboard');
-    pushToast({ type: 'success', title: `Demo Session: ${found.name}`, description: `Role: ${role}` });
+  const changeOwnPassword = async (currentPassword, newPassword) => {
+    if (!currentUser) {
+      return { ok: false, error: 'No active session.' };
+    }
+    const freshUser = users.find((u) => u.id === currentUser.id) ?? currentUser;
+    const validCurrent = await verifyPassword(currentPassword, freshUser.passwordHash);
+    if (!validCurrent) {
+      return { ok: false, error: 'Current password is incorrect.' };
+    }
+    if (newPassword.length < 6) {
+      return { ok: false, error: 'New password must be at least 6 characters.' };
+    }
+    const nextHash = await hashPassword(newPassword);
+    setUsers((prev) =>
+      prev.map((u) => (u.id === freshUser.id ? { ...u, passwordHash: nextHash } : u))
+    );
+    setCurrentUser((prev) => (prev ? { ...prev, passwordHash: nextHash } : prev));
+    addAuditLog('CHANGE_OWN_PASSWORD', freshUser.email, 'User updated their own PBKDF2-SHA256 password hash');
+    return { ok: true };
   };
 
   const logout = () => {
@@ -628,7 +688,7 @@ export function PlatformProvider({ children }) {
       pushToast,
       dismissToast,
       login,
-      quickLoginRole,
+      changeOwnPassword,
       logout,
       triggerFireEmergency,
       resetFireEmergency,

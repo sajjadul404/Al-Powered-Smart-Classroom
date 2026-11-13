@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AlertTriangle, ChevronDown, Eye, EyeOff, Lock, Map } from 'lucide-react';
+import { AlertTriangle, ChevronDown, Eye, EyeOff, Lock, Map, ShieldCheck } from 'lucide-react';
 import { usePlatform } from '../context/PlatformContext.jsx';
 import { ASSETS } from '../data/seedData';
 import { Logo } from '../components/ui/Logo.jsx';
@@ -7,19 +7,20 @@ import { Modal } from '../components/ui/Modal.jsx';
 import { SitemapModal } from '../components/layout/SitemapModal.jsx';
 
 const ROLE_OPTIONS = [
-  { role: 'Admin', email: 'admin@fastrobox.edu', label: 'Admin — Full Platform & Hardware Control' },
-  { role: 'Teacher', email: 'teacher@fastrobox.edu', label: 'Teacher — Classroom, Attendance & Safety' },
-  { role: 'Student', email: 'student@fastrobox.edu', label: 'Student — Personal Profile & Attendance' },
-  { role: 'Guardian', email: 'guardian@fastrobox.edu', label: 'Guardian — Linked Child & Safety Alerts' },
+  { role: 'Admin', placeholderEmail: 'admin@fastrobox.edu', label: 'Admin — Full Platform & Hardware Control' },
+  { role: 'Teacher', placeholderEmail: 'teacher@fastrobox.edu', label: 'Teacher — Classroom, Attendance & Safety' },
+  { role: 'Student', placeholderEmail: 'student@fastrobox.edu', label: 'Student — Personal Profile & Attendance' },
+  { role: 'Guardian', placeholderEmail: 'guardian@fastrobox.edu', label: 'Guardian — Linked Child & Safety Alerts' },
 ];
 
 export function LoginPage() {
   const { login, setSitemapOpen, pushToast } = usePlatform();
   const [selectedRole, setSelectedRole] = useState('Admin');
-  const [identifier, setIdentifier] = useState('admin@fastrobox.edu');
-  const [password, setPassword] = useState('Password123!');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockoutSeconds, setLockoutSeconds] = useState(0);
@@ -41,32 +42,35 @@ export function LoginPage() {
     return () => clearInterval(timer);
   }, [lockoutSeconds]);
 
+  const currentRoleOption = ROLE_OPTIONS.find((r) => r.role === selectedRole) ?? ROLE_OPTIONS[0];
+
   const handleRoleChange = (nextRole) => {
     setSelectedRole(nextRole);
     setErrorMsg(null);
-    const match = ROLE_OPTIONS.find((r) => r.role === nextRole);
-    if (match) {
-      setIdentifier(match.email);
-    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (lockoutSeconds > 0) return;
+    if (lockoutSeconds > 0 || submitting) return;
 
-    const res = login(identifier, password, selectedRole);
-    if (!res.ok) {
-      const nextAttempts = failedAttempts + 1;
-      setFailedAttempts(nextAttempts);
-      if (nextAttempts >= 3) {
-        setLockoutSeconds(60);
-        setErrorMsg('Account temporarily locked after 3 incorrect password attempts. Please wait 60 seconds.');
+    setSubmitting(true);
+    try {
+      const res = await login(identifier, password, selectedRole);
+      if (!res.ok) {
+        const nextAttempts = failedAttempts + 1;
+        setFailedAttempts(nextAttempts);
+        if (nextAttempts >= 3) {
+          setLockoutSeconds(60);
+          setErrorMsg('Account temporarily locked after 3 incorrect password attempts. Please wait 60 seconds.');
+        } else {
+          setErrorMsg(`${res.error} (${3 - nextAttempts} attempt(s) remaining before 60s lockout)`);
+        }
       } else {
-        setErrorMsg(`${res.error} (${3 - nextAttempts} attempt(s) remaining before 60s lockout)`);
+        setFailedAttempts(0);
+        setErrorMsg(null);
       }
-    } else {
-      setFailedAttempts(0);
-      setErrorMsg(null);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -125,7 +129,7 @@ export function LoginPage() {
               Sign in to FastRobox 1.0
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Select your role and enter your institutional credentials to continue.
+              Select your role and enter your authorized email and password to continue.
             </p>
           </div>
 
@@ -168,7 +172,7 @@ export function LoginPage() {
               <div className="relative">
                 <select
                   id="login-role"
-                  disabled={lockoutSeconds > 0}
+                  disabled={lockoutSeconds > 0 || submitting}
                   value={selectedRole}
                   onChange={(e) => handleRoleChange(e.target.value)}
                   className="w-full appearance-none px-3.5 py-2.5 pr-10 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50"
@@ -194,10 +198,11 @@ export function LoginPage() {
                 id="login-identifier"
                 type="text"
                 required
-                disabled={lockoutSeconds > 0}
+                autoComplete="username"
+                disabled={lockoutSeconds > 0 || submitting}
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="admin@fastrobox.edu"
+                placeholder={currentRoleOption.placeholderEmail}
                 className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50"
               />
             </div>
@@ -214,9 +219,11 @@ export function LoginPage() {
                   id="login-password"
                   type={showPassword ? 'text' : 'password'}
                   required
-                  disabled={lockoutSeconds > 0}
+                  autoComplete="current-password"
+                  disabled={lockoutSeconds > 0 || submitting}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
                   className="w-full px-3.5 py-2.5 pr-10 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50"
                 />
                 <button
@@ -251,12 +258,21 @@ export function LoginPage() {
 
             <button
               type="submit"
-              disabled={lockoutSeconds > 0}
+              disabled={lockoutSeconds > 0 || submitting}
               className="w-full py-2.5 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {lockoutSeconds > 0 ? `Locked (${lockoutSeconds}s)` : `Sign In as ${selectedRole}`}
+              {lockoutSeconds > 0
+                ? `Locked (${lockoutSeconds}s)`
+                : submitting
+                ? 'Verifying Credentials...'
+                : `Sign In as ${selectedRole}`}
             </button>
           </form>
+
+          <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>Protected with salted PBKDF2-SHA256 credential hashing & strict role verification.</span>
+          </div>
         </div>
       </div>
 
