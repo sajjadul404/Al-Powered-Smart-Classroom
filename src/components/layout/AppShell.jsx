@@ -14,7 +14,6 @@ import {
   Hand,
   LayoutDashboard,
   LogOut,
-  Map,
   Menu,
   Radio,
   RefreshCw,
@@ -33,7 +32,6 @@ import { tPage, UI_COPY } from '../../i18n';
 import { Logo } from '../ui/Logo.jsx';
 import { Modal } from '../ui/Modal.jsx';
 import { StatusBadge } from '../ui/StatusBadge.jsx';
-import { SitemapModal } from './SitemapModal.jsx';
 
 const NAV_ITEMS = [
   { id: 'dashboard', icon: LayoutDashboard },
@@ -74,7 +72,6 @@ export function AppShell({ children }) {
     triggerPanicAlert,
     toggleOfflineSimulation,
     simulateFiveFaceMismatches,
-    setSitemapOpen,
   } = usePlatform();
 
   const [collapsed, setCollapsed] = useState(false);
@@ -137,17 +134,6 @@ export function AppShell({ children }) {
             );
           })}
         </nav>
-
-        <div className="p-3 border-t border-slate-800/80 space-y-2">
-          <button
-            type="button"
-            onClick={() => setSitemapOpen(true)}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors"
-          >
-            <Map className="w-4 h-4 shrink-0" />
-            {!collapsed && <span>{copy.sitemap}</span>}
-          </button>
-        </div>
       </aside>
 
       {mobileOpen && (
@@ -458,8 +444,6 @@ export function AppShell({ children }) {
           </div>
         </div>
       </Modal>
-
-      <SitemapModal />
     </div>
   );
 }

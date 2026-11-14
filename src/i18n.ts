@@ -36,7 +36,6 @@ export const UI_COPY: Record<
     deviceStatus: string;
     activeAlerts: string;
     logout: string;
-    sitemap: string;
     resetFire: string;
     acknowledge: string;
     searchPlaceholder: string;
@@ -61,7 +60,6 @@ export const UI_COPY: Record<
     deviceStatus: 'Device Status',
     activeAlerts: 'Active Alerts',
     logout: 'Logout',
-    sitemap: 'Sitemap',
     resetFire: 'Reset Fire',
     acknowledge: 'Acknowledge',
     searchPlaceholder: 'Search records...',
@@ -85,7 +83,6 @@ export const UI_COPY: Record<
     deviceStatus: 'ডিভাইস অবস্থা',
     activeAlerts: 'সক্রিয় সতর্কতা',
     logout: 'লগআউট',
-    sitemap: 'সাইটম্যাপ',
     resetFire: 'আগুন রিসেট করুন',
     acknowledge: 'স্বীকার করুন',
     searchPlaceholder: 'তথ্য খুঁজুন...',

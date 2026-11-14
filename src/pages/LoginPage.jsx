@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { AlertTriangle, ChevronDown, Eye, EyeOff, Lock, Map, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, ChevronDown, Eye, EyeOff, Lock } from 'lucide-react';
 import { usePlatform } from '../context/PlatformContext.jsx';
 import { ASSETS } from '../data/seedData';
 import { Logo } from '../components/ui/Logo.jsx';
 import { Modal } from '../components/ui/Modal.jsx';
-import { SitemapModal } from '../components/layout/SitemapModal.jsx';
 
 const ROLE_OPTIONS = [
   { role: 'Admin', placeholderEmail: 'admin@fastrobox.edu', label: 'Admin — Full Platform & Hardware Control' },
@@ -14,7 +13,7 @@ const ROLE_OPTIONS = [
 ];
 
 export function LoginPage() {
-  const { login, setSitemapOpen, pushToast } = usePlatform();
+  const { login, pushToast } = usePlatform();
   const [selectedRole, setSelectedRole] = useState('Admin');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -79,14 +78,6 @@ export function LoginPage() {
       <div className="lg:w-[48%] bg-[#0B1324] text-white p-8 lg:p-12 flex flex-col justify-between relative overflow-hidden">
         <div className="flex items-center justify-between gap-4 z-10">
           <Logo light />
-          <button
-            type="button"
-            onClick={() => setSitemapOpen(true)}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-white transition-colors"
-          >
-            <Map className="w-3.5 h-3.5" />
-            <span>Website Sitemap</span>
-          </button>
         </div>
 
         <div className="my-8 lg:my-0 space-y-6 z-10 max-w-lg">
@@ -95,7 +86,7 @@ export function LoginPage() {
               AI-Powered Smart Classroom
             </h1>
             <p className="text-sm text-slate-300 leading-relaxed">
-              Do-Something
+              Team: Do-Something 
             </p>
           </div>
 
@@ -264,10 +255,6 @@ export function LoginPage() {
                 : `Sign In as ${selectedRole}`}
             </button>
           </form>
-
-          <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-          </div>
         </div>
       </div>
 
@@ -320,8 +307,6 @@ export function LoginPage() {
           </div>
         </form>
       </Modal>
-
-      <SitemapModal />
     </div>
   );
 }

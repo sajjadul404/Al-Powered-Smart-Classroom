@@ -135,7 +135,6 @@ export function PlatformProvider({ children }) {
   const [toasts, setToasts] = useState([]);
   const [selectedStudentIdForDetails, setSelectedStudentIdForDetails] = useState(null);
   const [selectedDeviceIdForDetails, setSelectedDeviceIdForDetails] = useState(null);
-  const [sitemapOpen, setSitemapOpen] = useState(false);
 
   const setTheme = (nextTheme) => {
     setThemeState(nextTheme);
@@ -708,8 +707,6 @@ export function PlatformProvider({ children }) {
       setSelectedStudentIdForDetails,
       selectedDeviceIdForDetails,
       setSelectedDeviceIdForDetails,
-      sitemapOpen,
-      setSitemapOpen,
       institutionName,
       setInstitutionName,
     }),
@@ -747,7 +744,6 @@ export function PlatformProvider({ children }) {
       toasts,
       selectedStudentIdForDetails,
       selectedDeviceIdForDetails,
-      sitemapOpen,
       institutionName,
     ]
   );

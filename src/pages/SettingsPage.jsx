@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Globe, KeyRound, Map, Moon, Shield, Sun } from 'lucide-react';
+import { Globe, KeyRound, Moon, Shield, Sun } from 'lucide-react';
 import { ROLE_ALLOWED_PAGES, usePlatform } from '../context/PlatformContext.jsx';
 import { StatusBadge } from '../components/ui/StatusBadge.jsx';
 
@@ -16,7 +16,6 @@ export function SettingsPage() {
     setInstitutionName,
     auditLogs,
     devices,
-    setSitemapOpen,
     pushToast,
     addAuditLog,
     changeOwnPassword,
@@ -79,14 +78,6 @@ export function SettingsPage() {
             Profile, institution details, English/Bangla language, Light/Dark theme, password security, RBAC permissions, and audit logs
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setSitemapOpen(true)}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 shrink-0"
-        >
-          <Map className="w-4 h-4 text-blue-600" />
-          <span>Open Website Sitemap</span>
-        </button>
       </div>
 
       {/* Tabs */}
