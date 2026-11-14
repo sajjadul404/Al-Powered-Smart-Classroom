@@ -15,13 +15,6 @@
 </a>
 
 
-<br/><br/>
-
-![Project Status](https://img.shields.io/badge/Project-Active-22C55E?style=flat-square)
-![Category](https://img.shields.io/badge/Category-Education-3B82F6?style=flat-square)
-![AI](https://img.shields.io/badge/AI-Powered-A855F7?style=flat-square)
-![Deployment](https://img.shields.io/badge/Deployment-Vercel-black?style=flat-square)
-
 </div>
 
 ---
