@@ -244,10 +244,6 @@ Passionate about software development, artificial intelligence, modern web techn
 <img src="https://img.shields.io/badge/GitHub-sajjadul404-181717?style=for-the-badge&logo=github" />
 </a>
 
-<a href="https://github.com/sajjadul404/AI-Powered-Smart-Classroom">
-<img src="https://img.shields.io/badge/Project-Repository-7C3AED?style=for-the-badge&logo=github" />
-</a>
-
 </div>
 
 ---
