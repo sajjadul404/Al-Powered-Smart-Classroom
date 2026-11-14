@@ -55,7 +55,7 @@ The project focuses on creating a smarter, more interactive, and efficient learn
 
 <div align="center">
 
-### 🏠 Loginpage Preview
+### 🏠 Logi npage Preview
 
 <!-- Screenshot 01: Replace with your homepage screenshot -->
 
@@ -65,21 +65,21 @@ The project focuses on creating a smarter, more interactive, and efficient learn
 
 <br/><br/>
 
-### 📊 Dashboard Preview
+### 📊 Camera Monitoring Preview
 
 <!-- Screenshot 02: Replace with your dashboard screenshot -->
 
-<img src="screenshots/dashboard.png" width="95%" alt="Smart Classroom Dashboard"/>
+<img src="screenshots/CameraMonitoring.png" width="95%" alt="Smart Classroom Dashboard"/>
 
 *Figure 02 — Smart Classroom Dashboard*
 
 <br/><br/>
 
-### ✨ Additional Website Preview
+### ✨ Attendance Preview
 
 <!-- Screenshot 03: Replace with another website screenshot -->
 
-<img src="screenshots/website-preview.png" width="95%" alt="Smart Classroom Website Preview"/>
+<img src="screenshots/Attendence.png" width="95%" alt="Smart Classroom Website Preview"/>
 
 *Figure 03 — Additional Website Interface*
 
