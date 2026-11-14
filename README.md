@@ -13,9 +13,7 @@
 <a href="https://ai-powered-smart-classroom.vercel.app/">
 <img src="https://img.shields.io/badge/🌐%20Live%20Website-Visit%20Project-7C3AED?style=for-the-badge" />
 </a>
-<a href="https://github.com/sajjadul404/AI-Powered-Smart-Classroom">
-<img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github" />
-</a>
+
 
 <br/><br/>
 
@@ -54,7 +52,7 @@ The project focuses on creating a smarter, more interactive, and efficient learn
 <img src="https://img.shields.io/badge/🚀%20Explore%20Live%20Project-Click%20Here-7C3AED?style=for-the-badge" />
 </a>
 
-**Live URL:** https://ai-powered-smart-classroom.vercel.app/
+**Live URL:** [https://ai-powered-smart-classroom.vercel.app/](https://al-powered-smart-classroom.vercel.app/)
 
 </div>
 
@@ -119,110 +117,6 @@ The project focuses on creating a smarter, more interactive, and efficient learn
 
 </div>
 
----
-
-## 📂 Project Structure
-
-```text
-AI-Powered-Smart-Classroom/
-│
-├── api/
-│
-├── public/
-│   └── assets/
-│       └── aistudio/
-│
-├── server/
-│
-├── src/
-│
-├── screenshots/
-│   ├── homepage.png
-│   ├── dashboard.png
-│   └── website-preview.png
-│
-├── .env.example
-├── .gitignore
-├── README.md
-├── bun.lock
-├── index.html
-├── metadata.json
-└── package.json
-```
-
----
-
-## ⚙️ Installation & Setup
-
-Follow these steps to run the project locally.
-
-### 1. Clone Repository
-
-```bash
-git clone https://github.com/sajjadul404/AI-Powered-Smart-Classroom.git
-```
-
-### 2. Navigate to Project
-
-```bash
-cd AI-Powered-Smart-Classroom
-```
-
-### 3. Install Dependencies
-
-Make sure Bun is installed on your system.
-
-```bash
-bun install
-```
-
-### 4. Environment Variables
-
-Create a `.env` file in the root directory.
-
-Use `.env.example` as a reference:
-
-```env
-# Add your required environment variables here
-
-API_KEY=your_api_key
-```
-
-> Configure the actual environment variables required by your application. Never commit private API keys or secrets to GitHub.
-
-### 5. Run the Project
-
-```bash
-bun run dev
-```
-
-### 6. Open in Browser
-
-```text
-http://localhost:3000
-```
-
-> The development URL and port may vary depending on your project configuration.
-
----
-
-## 🚀 Deployment
-
-The application is deployed using **Vercel**, providing an accessible online experience.
-
-<div align="center">
-
-<a href="https://vercel.com/">
-<img src="https://img.shields.io/badge/Deployed%20with-Vercel-black?style=for-the-badge&logo=vercel" />
-</a>
-
-<br/>
-
-**Live Project:** [AI-Powered Smart Classroom](https://ai-powered-smart-classroom.vercel.app/)
-
-</div>
-
----
 
 ## 👨‍💻 Author & Developer
 
