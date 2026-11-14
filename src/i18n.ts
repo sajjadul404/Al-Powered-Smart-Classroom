@@ -24,7 +24,6 @@ export const UI_COPY: Record<
   LanguageCode,
   {
     brandSubtitle: string;
-    demoNotice: string;
     totalStudents: string;
     presentStudents: string;
     absentStudents: string;
@@ -48,7 +47,6 @@ export const UI_COPY: Record<
 > = {
   en: {
     brandSubtitle: 'Smart Classroom Platform',
-    demoNotice: 'Demo Telemetry Mode — Interactive simulated ESP32-S3-CAM data for evaluation',
     totalStudents: 'Total Students',
     presentStudents: 'Present Students',
     absentStudents: 'Absent Students',
@@ -71,7 +69,6 @@ export const UI_COPY: Record<
   },
   bn: {
     brandSubtitle: 'স্মার্ট শ্রেণিকক্ষ প্ল্যাটফর্ম',
-    demoNotice: 'ডেমো টেলিমেট্রি মোড — মূল্যায়নের জন্য সিমুলেটেড ESP32-S3-CAM ডেটা',
     totalStudents: 'মোট শিক্ষার্থী',
     presentStudents: 'উপস্থিত শিক্ষার্থী',
     absentStudents: 'অনুপস্থিত শিক্ষার্থী',

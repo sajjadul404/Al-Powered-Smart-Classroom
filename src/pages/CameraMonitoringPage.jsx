@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AlertTriangle, Camera, EyeOff, Moon, Plus, Shield, Trash2 } from 'lucide-react';
+import { AlertTriangle, Camera, EyeOff, Moon, Plus, Trash2 } from 'lucide-react';
 import { usePlatform } from '../context/PlatformContext.jsx';
 import { ASSETS } from '../data/seedData';
 import { Modal } from '../components/ui/Modal.jsx';
@@ -109,9 +109,6 @@ export function CameraMonitoringPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Classroom Camera Monitoring</h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Live ≥ 1 FPS inference stream · Bounding boxes · Seat zones · Night Watch & Camera Tampering
-          </p>
         </div>
 
         <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl w-fit">
@@ -134,13 +131,6 @@ export function CameraMonitoringPage() {
             DOOR Camera
           </button>
         </div>
-      </div>
-
-      <div className="p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 flex items-center gap-3 text-xs text-blue-900 dark:text-blue-200">
-        <Shield className="w-4 h-4 text-blue-600 shrink-0" />
-        <span>
-          <strong>Privacy Guarantee:</strong> Normal classroom camera frames are processed transiently in memory and never stored. Private snapshots are retained only when an authorized security event (Intruder, Spoofing, Lockout) occurs.
-        </span>
       </div>
 
       {capacityAlert && (

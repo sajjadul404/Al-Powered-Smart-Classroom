@@ -55,11 +55,11 @@ The project focuses on creating a smarter, more interactive, and efficient learn
 
 <div align="center">
 
-### 🏠 Homepage Preview
+### 🏠 Loginpage Preview
 
 <!-- Screenshot 01: Replace with your homepage screenshot -->
 
-<img src="screenshots/homepage.png" width="95%" alt="Smart Classroom Homepage"/>
+<img src="screenshots/Loginpage.png" width="95%" alt="Smart Classroom Homepage"/>
 
 *Figure 01 — Main Homepage Interface*
 

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {
-  Activity,
   Bell,
   Bot,
   Camera,
@@ -15,7 +14,6 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Radio,
   RefreshCw,
   Settings,
   ShieldAlert,
@@ -24,14 +22,12 @@ import {
   UserCheck,
   Users,
   Wifi,
-  WifiOff,
   X,
 } from 'lucide-react';
 import { ROLE_ALLOWED_PAGES, usePlatform } from '../../context/PlatformContext.jsx';
 import { tPage, UI_COPY } from '../../i18n';
 import { Logo } from '../ui/Logo.jsx';
 import { Modal } from '../ui/Modal.jsx';
-import { StatusBadge } from '../ui/StatusBadge.jsx';
 
 const NAV_ITEMS = [
   { id: 'dashboard', icon: LayoutDashboard },
@@ -59,19 +55,13 @@ export function AppShell({ children }) {
     activePage,
     setActivePage,
     language,
-    setLanguage,
     selectedClassroom,
     setSelectedClassroom,
-    connectionMode,
     telemetry,
     notifications,
     logout,
     resetFireEmergency,
     resetPanicAlert,
-    triggerFireEmergency,
-    triggerPanicAlert,
-    toggleOfflineSimulation,
-    simulateFiveFaceMismatches,
   } = usePlatform();
 
   const [collapsed, setCollapsed] = useState(false);
@@ -209,33 +199,6 @@ export function AppShell({ children }) {
           </div>
 
           <div className="flex items-center gap-2.5 shrink-0">
-            <div className="hidden md:flex items-center gap-2">
-              <StatusBadge
-                status={connectionMode === 'LIVE' ? 'ONLINE' : connectionMode}
-                label={connectionMode === 'LIVE' ? 'ESP32 ONLINE' : connectionMode}
-              />
-            </div>
-
-            <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 border border-slate-200 dark:border-slate-700">
-              <button
-                type="button"
-                onClick={() => setLanguage('en')}
-                className={`px-2 py-1 text-xs font-semibold rounded-md transition-colors ${
-                  language === 'en' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs' : 'text-slate-500'
-                }`}
-              >
-                EN
-              </button>
-              <button
-                type="button"
-                onClick={() => setLanguage('bn')}
-                className={`px-2 py-1 text-xs font-semibold rounded-md transition-colors ${
-                  language === 'bn' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs' : 'text-slate-500'
-                }`}
-              >
-                বাং
-              </button>
-            </div>
 
             <div className="relative">
               <button
@@ -365,50 +328,6 @@ export function AppShell({ children }) {
             )}
           </div>
         )}
-
-        <div className="bg-slate-100 dark:bg-slate-900/70 border-b border-slate-200 dark:border-slate-800 px-4 lg:px-6 py-2 flex flex-wrap items-center justify-between gap-2 text-xs no-print">
-          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-            <Activity className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-            <span>{copy.demoNotice}</span>
-          </div>
-          {(currentUser.role === 'Admin' || currentUser.role === 'Teacher') && (
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={telemetry.flameDetected ? () => setResetFireModalOpen(true) : triggerFireEmergency}
-                className="px-2.5 py-1 rounded border border-red-200 dark:border-red-900 bg-white dark:bg-slate-900 text-red-700 dark:text-red-400 font-medium hover:bg-red-50 transition-colors whitespace-nowrap"
-              >
-                {telemetry.flameDetected ? 'Reset Fire' : 'Simulate Fire'}
-              </button>
-              <button
-                type="button"
-                onClick={telemetry.panicActive ? resetPanicAlert : triggerPanicAlert}
-                className="px-2.5 py-1 rounded border border-amber-200 dark:border-amber-900 bg-white dark:bg-slate-900 text-amber-800 dark:text-amber-300 font-medium hover:bg-amber-50 transition-colors whitespace-nowrap"
-              >
-                {telemetry.panicActive ? 'Clear Panic' : 'Simulate Panic'}
-              </button>
-              {currentUser.role === 'Admin' && (
-                <>
-                  <button
-                    type="button"
-                    onClick={toggleOfflineSimulation}
-                    className="px-2.5 py-1 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 transition-colors whitespace-nowrap inline-flex items-center gap-1"
-                  >
-                    {connectionMode === 'OFFLINE' ? <Radio className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
-                    <span>{connectionMode === 'OFFLINE' ? 'Sync & Reconnect' : 'Simulate Offline'}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => simulateFiveFaceMismatches('D7:30:F1:88')}
-                    className="px-2.5 py-1 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 transition-colors whitespace-nowrap"
-                  >
-                    Simulate 5 Mismatches
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-        </div>
 
         <main className="flex-1 p-4 lg:p-6 max-w-[1440px] w-full mx-auto">{children}</main>
       </div>
