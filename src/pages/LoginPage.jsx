@@ -91,14 +91,11 @@ export function LoginPage() {
 
         <div className="my-8 lg:my-0 space-y-6 z-10 max-w-lg">
           <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-blue-400">
-              AI-Powered Smart Classroom Ecosystem
-            </p>
             <h1 className="font-display text-3xl lg:text-4xl font-bold tracking-tight text-white [text-wrap:balance]">
-              Safety, Access & Vision Intelligence on ESP32-S3-CAM
+              AI-Powered Smart Classroom
             </h1>
             <p className="text-sm text-slate-300 leading-relaxed">
-              Unified classroom command center integrating RFID + face verification, flame & panic override, 4-second AI hand-raise detection, 3×3 Wi-Fi CSI localization, and resilient offline synchronization.
+              Do-Something
             </p>
           </div>
 
@@ -118,7 +115,6 @@ export function LoginPage() {
 
         <div className="text-xs text-slate-400 flex items-center justify-between gap-4 z-10">
           <span>FastRobox 1.0 Smart Classroom Platform</span>
-          <span>Role-Based Access Control (RBAC)</span>
         </div>
       </div>
 
@@ -271,7 +267,6 @@ export function LoginPage() {
 
           <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>Protected with salted PBKDF2-SHA256 credential hashing & strict role verification.</span>
           </div>
         </div>
       </div>
