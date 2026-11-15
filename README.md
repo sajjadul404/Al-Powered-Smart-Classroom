@@ -81,7 +81,7 @@ The project focuses on creating a smarter, more interactive, and efficient learn
 
 <img src="screenshots/Attendence.png" width="95%" alt="Smart Classroom Website Preview"/>
 
-*Figure 03 — Additional Website Interface*
+*Figure 03 — Attendence Dashboard*
 
 </div>
 
